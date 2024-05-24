@@ -9,7 +9,9 @@ namespace FxPu.AiChatLib.Services
 {
     public interface IChatService
     {
+        ValueTask<CommandResult> ListConfigurationsAsync();
         public ValueTask<CommandResult> NewChatAsync();
+        ValueTask<CommandResult> SetConfigurationAsync(string name);
         public ValueTask<CommandResult> SubitAsync(string question);
     }
 }

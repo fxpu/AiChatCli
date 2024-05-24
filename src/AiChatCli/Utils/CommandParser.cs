@@ -58,6 +58,7 @@ namespace FxPu.AiChatCli.Utils
         public string Help()
         {
             var sb = new StringBuilder();
+            sb.AppendLine("List of commands");
             foreach (var commandDefinition in _commandDefinitions)
             {
                 sb.AppendLine(commandDefinition.description);

@@ -21,6 +21,8 @@ namespace FxPu.AiChatCli.Utils
             _commandParser = new CommandParser()
     .AddDefinition("s", ":s - Submit question.", async (args, content) => await _chatSvc.SubitAsync(content))
     .AddDefinition("n", ":n - New chat.", async (args, content) => await _chatSvc.NewChatAsync())
+    .AddDefinition("sc", ":sc <name> - set configuration.", async (args, content) => await _chatSvc.SetConfigurationAsync(args[0]))
+    .AddDefinition("lc", ":lc - list configurations.", async (args, content) => await _chatSvc.ListConfigurationsAsync())
     .AddDefinition("h", ":h - Display help.", (args, content) => ValueTask.FromResult(new CommandResult(false, _help)))
         .AddDefinition("q", ":q - Quit the app.", (args, content) => throw new QuitException());
 
