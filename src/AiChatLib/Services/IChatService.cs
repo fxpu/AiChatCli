@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FxPu.AiChat.Utils;
+using FxPu.AiChatLib.Utils;
 
-namespace FxPu.AiChat.Services
+namespace FxPu.AiChatLib.Services
 {
     public interface IChatService
     {

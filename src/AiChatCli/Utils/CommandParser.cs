@@ -1,6 +1,7 @@
-﻿using FxPu.AiChat.Utils;
+﻿using System.Text;
+using FxPu.AiChatLib.Utils;
 
-namespace FxPu.AiChat.Cli.Utils
+namespace FxPu.AiChatCli.Utils
 {
     record CommandDefinition(string command, string description, Func<string[], string, string?>? validationFunc, Func<string[], string, ValueTask<CommandResult>> commandFunc);
 
@@ -25,8 +26,8 @@ namespace FxPu.AiChat.Cli.Utils
                 return () => ValueTask.FromResult(new CommandResult(true, "Invalid command."));
             }
 
-            // parse line into command and args
-            var splitted = line.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            // parse line into command and args. Ignore first : char
+            var splitted = line.Substring(1).Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             var command = splitted[0];
             var args = splitted.Skip(1).ToArray();
 
@@ -50,9 +51,19 @@ namespace FxPu.AiChat.Cli.Utils
                 }
             }
 
-
             //  command not found
-            return () => ValueTask.FromResult(new CommandResult(true, $"Invalid command{command}."));
+            return () => ValueTask.FromResult(new CommandResult(true, $"Invalid command \":{command}\", use \":h\" for help."));
+        }
+
+        public string Help()
+        {
+            var sb = new StringBuilder();
+            foreach (var commandDefinition in _commandDefinitions)
+            {
+                sb.AppendLine(commandDefinition.description);
+            }
+
+            return sb.ToString();
         }
 
     }

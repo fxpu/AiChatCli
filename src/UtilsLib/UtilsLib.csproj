@@ -4,7 +4,9 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>FxPu.Utils</RootNamespace>
+	  <NoWarn></NoWarn>
+	  <WarningsAsErrors>CS4014</WarningsAsErrors>
+	  <RootNamespace>FxPu.UtilsLib</RootNamespace>
     <AssemblyName>FxPuUtilsLib</AssemblyName>
   </PropertyGroup>
 

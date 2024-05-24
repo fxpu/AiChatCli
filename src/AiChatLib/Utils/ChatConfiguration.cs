@@ -1,4 +1,4 @@
-﻿namespace FxPu.AiChat.Utils
+﻿namespace FxPu.AiChatLib.Utils
 {
     public class ChatConfiguration
     {
