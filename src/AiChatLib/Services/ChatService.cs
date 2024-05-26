@@ -25,27 +25,30 @@ namespace FxPu.AiChatLib.Services
             SetConfigurationAndClient(_chatOptions.Configurations.First());
         }
 
-        public async ValueTask<CommandResult> NewChatAsync()
+        public ValueTask NewChatAsync()
         {
-            return new CommandResult(false, "New chat created.");
+            _messages.Clear();
+            _lastTokenUsage = null;
+
+            return new ValueTask();
         }
 
-        public async ValueTask<CommandResult> SubitAsync(string question)
+        public async ValueTask<string?> SubitAsync(string question)
         {
-            return new CommandResult(false, "Hello!");
+            return "Hello";
         }
 
-        public ValueTask<CommandResult>   SetConfigurationAsync(string name)
+        public ValueTask SetConfigurationAsync(string name)
         {
             var configuration = _chatOptions.Configurations.SingleOrDefault(c => c.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
             if (configuration == null)
             {
-                return ValueTask.FromResult(new CommandResult(true, $"Configuration \"{name} not found."));
+                throw new ChatException($"Configuration \"{name} not found.");
             }
 
             SetConfigurationAndClient(configuration);
 
-            return ValueTask.FromResult(new CommandResult($"Configuration set to \"{_configuration.Name}\"."));
+            return new ValueTask();
         }
 
         private void SetConfigurationAndClient(ChatConfiguration configuration)
@@ -59,18 +62,9 @@ namespace FxPu.AiChatLib.Services
             // TODO: change client and model
         }
 
-        public ValueTask<CommandResult> ListConfigurationsAsync()
+        public ValueTask<IEnumerable<ChatConfiguration>> ListConfigurationsAsync()
         {
-            var sb = new StringBuilder();
-            sb.AppendLine("List of configurations");
-            var i = 0;
-            foreach (var configuration in _chatOptions.Configurations)
-            {
-                i++; ;
-                sb.AppendLine($"{i}. {configuration.Name} - model {configuration.ModelName}");
-            }
-
-            return ValueTask.FromResult(new CommandResult(sb.ToString()));
+                return new ValueTask<IEnumerable<ChatConfiguration>>(_chatOptions.Configurations);
         }
 
     }

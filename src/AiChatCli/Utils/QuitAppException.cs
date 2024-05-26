@@ -1,6 +1,6 @@
 ﻿namespace FxPu.AiChatCli.Utils
 {
-    internal class QuitException : Exception
+    internal class QuitAppException : Exception
     {
     }
 }

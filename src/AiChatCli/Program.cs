@@ -50,6 +50,7 @@ namespace FxPu.AiChatCli
                 services.Configure<ChatOptions>(configuration);
                 services.AddScoped<IChatService, ChatService>();
                 services.AddScoped<ICommandProcessor, CommandProcessor>();
+                services.AddScoped<Commands>();
 
                 await using var serviceProvider = services.BuildServiceProvider();
                 var logger = serviceProvider.GetRequiredService<ILogger<Program>>();

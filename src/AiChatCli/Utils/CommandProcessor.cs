@@ -1,6 +1,6 @@
-﻿using System.Text;
+﻿using System.Reflection;
+using System.Text;
 using FxPu.AiChatLib.Services;
-using FxPu.AiChatLib.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace FxPu.AiChatCli.Utils
@@ -8,71 +8,56 @@ namespace FxPu.AiChatCli.Utils
     internal class CommandProcessor : ICommandProcessor
     {
         private readonly ILogger<CommandProcessor> _logger;
+        private readonly Commands _commands;
         private readonly IChatService _chatSvc;
-        private readonly CommandParser _commandParser;
-        private readonly string _help;
 
-        public CommandProcessor(ILogger<CommandProcessor> logger, IChatService chatSvc)
+        public CommandProcessor(ILogger<CommandProcessor> logger, Commands commands, IChatService chatSvc)
         {
             _logger = logger;
+            _commands = commands;
             _chatSvc = chatSvc;
-
-            // define commands
-            _commandParser = new CommandParser()
-    .AddDefinition("s", ":s - Submit question.", async (args, content) => await _chatSvc.SubitAsync(content))
-    .AddDefinition("n", ":n - New chat.", async (args, content) => await _chatSvc.NewChatAsync())
-    .AddDefinition("sc", ":sc <name> - set configuration.", async (args, content) => await _chatSvc.SetConfigurationAsync(args[0]))
-    .AddDefinition("lc", ":lc - list configurations.", async (args, content) => await _chatSvc.ListConfigurationsAsync())
-    .AddDefinition("h", ":h - Display help.", (args, content) => ValueTask.FromResult(new CommandResult(false, _help)))
-        .AddDefinition("q", ":q - Quit the app.", (args, content) => throw new QuitException());
-
-            // create help text
-            _help = _commandParser.Help().Trim();
         }
 
         public async ValueTask RunAsync()
-
         {
             // write help and prompt
-            Console.WriteLine(_help);
+            Console.WriteLine(":h - List commands.");
             Console.Write(Prompt());
 
             while (true)
             {
-                var sb = new StringBuilder();
+                var inputSb = new StringBuilder();
                 var line = Console.ReadLine();
 
                 // line does not start with :, normal line
                 if (!line.StartsWith(":"))
                 {
-                    sb.AppendLine(line);
+                    inputSb.AppendLine(line);
                     continue;
                 }
 
-                // parse command
-                var content = sb.ToString();
-                sb.Clear();
-                _logger.LogTrace("Parse command {line}", line);
-                var commandFunc = _commandParser.CreateCommandFunc(line, content);
-
-                // execute command
+                // invoke, maybe quit
+                CommandResult commandResult = null!;
                 try
                 {
-                    var commandResult = await commandFunc();
-
-                    // display result
-                    Console.WriteLine(commandResult.Output.TrimEnd());
+                    commandResult = await InvokeCommandAsync(line, inputSb.ToString());
                 }
-                catch (QuitException)
-                {
-                    _logger.LogInformation("Quit program");
+                catch (QuitAppException)
+                    {
+                    _logger.LogDebug("Quit app");
                     return;
                 }
-                catch (Exception e)
+
+                
+                // clear and set input?
+                inputSb.Clear();
+                if (commandResult.NewInput != null)
                 {
-                    _logger.LogDebug(e, "Error execute command.");
-                    Console.WriteLine("Error: {0}", e.Message);
+                    inputSb.Append(commandResult.NewInput);
                 }
+
+                // display result
+                Console.WriteLine(commandResult.Output);
 
                 // write prompt
                 Console.Write(Prompt());
@@ -82,6 +67,64 @@ namespace FxPu.AiChatCli.Utils
         private string Prompt()
         {
             return ">";
+        }
+
+        private async ValueTask<CommandResult> InvokeCommandAsync(string line, string? input)
+        {
+            // check line
+            if (!line.StartsWith(":") || line.Length < 2)
+            {
+                return new CommandResult(true, "Invalid command.", input);
+            }
+
+            // parse line into arhgs. args[0] is the command
+            var args = line.Substring(1).Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            // find method and command attribute for command
+            MethodInfo? commandMethod = null;
+            string? argsCsv = null;
+            var methods = typeof(Commands).GetMethods(BindingFlags.Public | BindingFlags.Instance);
+            foreach (var method in methods)
+            {
+                var commandAttribute = method.GetCustomAttribute<CommandAttribute>();
+                if (commandAttribute != null && commandAttribute.Command == args[0])
+                {
+                    commandMethod = method;
+                    argsCsv = commandAttribute.Arguments;
+                    break;
+                }
+            }
+
+            // command not found
+            if (commandMethod == null)
+            {
+                return new CommandResult(true, "Invalid command \":{args[0]}\".", input);
+            }
+
+            // check argument count
+            if (argsCsv != null)
+            {
+                int argsCount = argsCsv.Split(',').Length;
+                if (argsCount + 1 != args.Length)
+                {
+                    return new CommandResult(true, "Invalid number of arguments for command \":{args[0]}{argsCsv}\".", input);
+                }
+            }
+
+            // invoke method and do exception handling
+            try
+            {
+                return await (ValueTask<CommandResult>) commandMethod.Invoke(_commands, [args, input]);
+            }
+            catch (QuitAppException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error invoking command :{0}.", args[0]);
+                return new CommandResult(true, e.Message, input);
+            }
         }
 
     }
