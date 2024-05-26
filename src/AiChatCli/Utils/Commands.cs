@@ -42,11 +42,37 @@ namespace FxPu.AiChatCli.Utils
         [Command("s", "Submits the question.")]
         public async ValueTask<CommandResult> SubmitAsync(string[] args, string? input)
         {
+            // write ... to console
+            Console.WriteLine("...");
+
+            // ask the llm
             var output = await _chatSvc.SubitAsync(input);
 
             return new CommandResult(output);
         }
 
+
+        [Command("n", "New chat.")]
+        public async ValueTask<CommandResult> NewChatAsync(string[] args, string? input)
+        {
+            // new chat and clear console
+            await _chatSvc.NewChatAsync();
+            Console.Clear();
+
+            return new CommandResult(null);
+        }
+
+        [Command("sts", "Displays status e.g. duration, token usage etc.")]
+        public async ValueTask<CommandResult> StatusAsync(string[] args, string? input)
+        {
+            var status = _chatSvc.GetStatus();
+            var sb = new StringBuilder();
+            sb.AppendLine("Status:");
+            sb.Append($"Last duration {status.LastLlmDuration.Seconds} seconds");
+            sb.AppendLine($"Prompt tokens {status.LastTokenUsage.PromptTokens}, completion tokens {status.LastTokenUsage.CompletionTokens}, total tokens {status.LastTokenUsage.TotalTokens}");
+
+            return new CommandResult(sb.ToString(), input);
+        }
         [Command("lc", "List configurations.")]
         public async ValueTask<CommandResult> ListConfigurationsAsync(string[] args, string? input)
         {

@@ -23,10 +23,11 @@ namespace FxPu.AiChatCli.Utils
             // write help and prompt
             Console.WriteLine(":h - List commands.");
             Console.Write(Prompt());
+            // loop input
+            var inputSb = new StringBuilder();
 
             while (true)
             {
-                var inputSb = new StringBuilder();
                 var line = Console.ReadLine();
 
                 // line does not start with :, normal line
@@ -66,7 +67,9 @@ namespace FxPu.AiChatCli.Utils
 
         private string Prompt()
         {
-            return ">";
+            var status = _chatSvc.GetStatus();
+
+            return status.QuestionNumber == 1 ? ">" : $"{status.QuestionNumber} >";
         }
 
         private async ValueTask<CommandResult> InvokeCommandAsync(string line, string? input)

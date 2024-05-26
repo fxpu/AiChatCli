@@ -1,0 +1,17 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace FxPu.AiChatLib.Utils
+{
+    public class ChatStatus
+    {
+        public ChatStatus()
+        {
+            QuestionNumber = 1;
+            LastLlmDuration = TimeSpan.Zero;
+            LastTokenUsage = new TokenUsage(0, 0, 0);
+        }
+        public int QuestionNumber { get; set; }
+        public TimeSpan LastLlmDuration { get; set; }
+        public TokenUsage LastTokenUsage { get; set; }
+    }
+}
