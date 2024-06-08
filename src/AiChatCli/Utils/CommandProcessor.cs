@@ -70,6 +70,9 @@ namespace FxPu.AiChatCli.Utils
         {
             var status = _chatSvc.GetStatus();
 
+            // set title
+            Console.Title = status.Title ?? "AiChatCli";
+
             return status.QuestionNumber == 1 ? ">" : $"{status.QuestionNumber} >";
         }
 

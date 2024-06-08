@@ -60,8 +60,12 @@ namespace FxPu.AiChatCli.Utils
             // write ... to console
             Console.WriteLine("...");
 
-            // ask the llm but do this in background
-            var outputTask = _chatSvc.SubitAsync(input);
+            // ask the llm
+            var output = await _chatSvc.SubitAsync(input);
+
+            // get title from status
+            var chatStatus = _chatSvc.GetStatus();
+            var title = chatStatus.Title ?? "AiChatCli";
 
             // start a pipe and OutTb.exe
             await using var pipeStream = new AnonymousPipeServerStream(PipeDirection.Out, HandleInheritability.Inheritable);
@@ -69,12 +73,11 @@ namespace FxPu.AiChatCli.Utils
             Process.Start(new ProcessStartInfo("OutTb.exe")
             {
                 UseShellExecute = false,
-                Arguments = $"-p {pipeHandle}"
+                Arguments = $"-p {pipeHandle} -t \"{title}\""
             });
             pipeStream.DisposeLocalCopyOfClientHandle();
 
             // wait for llm and write answer to pipe
-            var output = await outputTask;
             await using var writer = new StreamWriter(pipeStream, Encoding.UTF8);
             await writer.WriteAsync(output);
             await writer.FlushAsync();

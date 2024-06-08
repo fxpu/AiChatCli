@@ -14,6 +14,8 @@ namespace FxPu.AiChatLib.Services
         private readonly IList<ChatMessage> _messages;
         private ChatConfiguration _configuration = null!;
         private OpenAIClient _llmClient = null!;
+        private ChatConfiguration? _titleConfiguration;
+        private OpenAIClient? _titleLlmClient;
         private ChatStatus _chatStatus;
 
         public ChatService(ILogger<ChatService> logger, IOptions<ChatOptions> chatOptionsFactory)
@@ -28,6 +30,8 @@ namespace FxPu.AiChatLib.Services
 
             // use the first configuration as default
             SetConfigurationAndClient(_chatOptions.Configurations.First());
+
+            SetTitleConfigurationAndClient();
         }
 
         public ValueTask NewChatAsync()
@@ -45,6 +49,13 @@ namespace FxPu.AiChatLib.Services
             if (string.IsNullOrWhiteSpace(question))
             {
                 throw new ChatException("No question - no answer :-)");
+            }
+
+            // when status.title is null, create with question in background
+            ValueTask<string?>? titleTask = null;
+            if (_chatStatus.Title == null && _titleConfiguration != null)
+            {
+                titleTask = CreateTitleAsync(question);
             }
 
             // llm options
@@ -91,6 +102,12 @@ namespace FxPu.AiChatLib.Services
             // update question number
             _chatStatus.QuestionNumber = _messages.Count(m => m.Role == "assistant") + 1;
 
+            // wait for title task when not null
+            if (titleTask != null)
+            {
+                _chatStatus.Title = await (ValueTask<string?>) titleTask;
+            }
+
             return answer;
         }
 
@@ -106,6 +123,26 @@ namespace FxPu.AiChatLib.Services
 
             return new ValueTask();
         }
+
+        private void SetTitleConfigurationAndClient()
+        {
+            var configurationName = _chatOptions.TitleConfigurationName;
+            if (configurationName == null)
+            {
+                return;
+            }
+
+            // get configuration, exit when null
+            _titleConfiguration = _chatOptions.Configurations.SingleOrDefault(c => c.Name == configurationName);
+            if (_titleConfiguration == null)
+            {
+                return;
+            }
+
+_titleLlmClient = _titleConfiguration.AzureOpenAiEndpoint == null
+                ? new OpenAIClient(_titleConfiguration.ApiKey)
+                : new OpenAIClient(new Uri(_titleConfiguration.AzureOpenAiEndpoint), new AzureKeyCredential(_titleConfiguration.ApiKey));
+            }
 
         private void SetConfigurationAndClient(ChatConfiguration configuration)
         {
@@ -162,6 +199,38 @@ namespace FxPu.AiChatLib.Services
                 _messages.Add(systemMessage);
                 _chatStatus.IsSystemMessageSet = true;
             }
+        }
+
+        private async ValueTask<string?> CreateTitleAsync(string question)
+        {
+            if (_titleConfiguration == null)
+            {
+                return null;
+            }
+
+            var titeLlmOptions = new ChatCompletionsOptions
+            {
+                DeploymentName = _titleConfiguration.ModelName,
+                ChoiceCount = 1,
+                Temperature = 0.1f,
+                FrequencyPenalty = null,
+                PresencePenalty = null
+            };
+
+            // add first 100 chars as question for title
+            var titleQuestion = question.Length > 100 ? question.Substring(0, 100) : question;
+            var content = $"Summarize the following question in max. 3 words.Use the language of the question for the answer:\n{ titleQuestion}";
+            titeLlmOptions.Messages.Add(new ChatRequestUserMessage(content));
+
+            // ask the llm
+            var sw = Stopwatch.StartNew();
+            var titleLlmResponse = (await _titleLlmClient.GetChatCompletionsAsync(titeLlmOptions)).Value;
+            var titleLlmChoice = titleLlmResponse.Choices[0];
+            sw.Stop();
+
+            _logger.LogTrace("title llm took {ms}.", sw.ElapsedMilliseconds);
+
+            return titleLlmChoice.Message.Content;
         }
 
     }

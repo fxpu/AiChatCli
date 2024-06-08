@@ -15,5 +15,6 @@ namespace FxPu.AiChatLib.Utils
         public TokenUsage LastTokenUsage { get; set; }
         public bool IsSystemMessageSet { get; set; }
         public string? ConfigurationName { get; set; }
+        public string? Title { get; set; }
     }
 }
