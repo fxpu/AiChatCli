@@ -52,7 +52,7 @@ namespace FxPu.AiChatCli.Utils
         }
 
 
-        [Command("n", "New chat.")]
+        [Command("nc", "New chat.")]
         public async ValueTask<CommandResult> NewChatAsync(string[] args, string? input)
         {
             // new chat and clear console
@@ -62,7 +62,17 @@ namespace FxPu.AiChatCli.Utils
             return new CommandResult(null);
         }
 
-        [Command("sts", "Displays status e.g. duration, token usage etc.")]
+        [Command("ncs", "New chat, keep system message.")]
+        public async ValueTask<CommandResult> NewChatKeepSystemMessageAsync(string[] args, string? input)
+        {
+            // new chat and clear console
+            await _chatSvc.NewChatKeepSystemMessageAsync();
+            Console.Clear();
+
+            return new CommandResult("system message set.");
+        }
+
+        [Command("dst", "Displays status e.g. duration, token usage etc.")]
         public async ValueTask<CommandResult> StatusAsync(string[] args, string? input)
         {
             var status = _chatSvc.GetStatus();
@@ -70,10 +80,21 @@ namespace FxPu.AiChatCli.Utils
             sb.AppendLine("Status:");
             sb.Append($"Last duration {status.LastLlmDuration.Seconds} seconds");
             sb.AppendLine($"Prompt tokens {status.LastTokenUsage.PromptTokens}, completion tokens {status.LastTokenUsage.CompletionTokens}, total tokens {status.LastTokenUsage.TotalTokens}");
+            sb.AppendLine($"Configuration {status.ConfigurationName}");
+            sb.AppendLine($"System message set {status.IsSystemMessageSet}");
 
             return new CommandResult(sb.ToString(), input);
         }
-        [Command("lc", "List configurations.")]
+
+            [Command("ss", "Set system message.")]
+            public async ValueTask<CommandResult> SetSystemMessageAsync(string[] args, string? input)
+            {
+                await _chatSvc.SetSystemMessageAsync(input);
+
+                return new CommandResult("System message set.");
+            }
+
+            [Command("lcf", "List configurations.")]
         public async ValueTask<CommandResult> ListConfigurationsAsync(string[] args, string? input)
         {
             var configurations = await _chatSvc.ListConfigurationsAsync();
@@ -88,7 +109,7 @@ namespace FxPu.AiChatCli.Utils
             return new CommandResult(sb.ToString(), input);
         }
 
-        [Command("sc", "<name>", "Sets the configuration.")]
+        [Command("scf", "<name>", "Sets the configuration.")]
         public async ValueTask<CommandResult> SetConfigurationAsync(string[] args, string? input)
         {
             // set configuration

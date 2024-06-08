@@ -23,23 +23,19 @@ namespace FxPu.AiChatLib.Services
 
             _messages = new List<ChatMessage>();
 
-            // use the first configuration as default
-            SetConfigurationAndClient(_chatOptions.Configurations.First());
-
             // chat status
             _chatStatus = new ChatStatus();
+
+            // use the first configuration as default
+            SetConfigurationAndClient(_chatOptions.Configurations.First());
         }
 
         public ValueTask NewChatAsync()
         {
-            // clear message, keep system message
-            var systemMessage = _messages.FirstOrDefault(m => m.Role == "system");
+            // clear message
             _messages.Clear();
-            if (systemMessage != null)
-            {
-                _messages.Add(systemMessage);
-            }
             _chatStatus = new ChatStatus();
+            _chatStatus.ConfigurationName = _configuration.Name;
 
             return new ValueTask();
         }
@@ -131,6 +127,9 @@ namespace FxPu.AiChatLib.Services
                 _logger.LogTrace("Use AzureOpenAiEndpoint {endpoint}.", _configuration.AzureOpenAiEndpoint);
                 _llmClient = new OpenAIClient(new Uri(_configuration.AzureOpenAiEndpoint), new AzureKeyCredential(_configuration.ApiKey));
             }
+
+            // status
+            _chatStatus.ConfigurationName = _configuration.Name;
         }
 
         public ValueTask<IEnumerable<ChatConfiguration>> ListConfigurationsAsync()
@@ -139,6 +138,31 @@ namespace FxPu.AiChatLib.Services
         }
 
         public ChatStatus GetStatus() => _chatStatus;
+
+        public async ValueTask SetSystemMessageAsync(string systemMessage)
+            {
+            if (string.IsNullOrEmpty(systemMessage))
+            {
+                throw new ChatException("No system message set.");
+            }
+
+            // create new chat and set system message
+            await NewChatAsync();
+            _messages.Add(new ChatMessage { Role = "system", Content = systemMessage });
+            _chatStatus.IsSystemMessageSet = true;
+            }
+
+        public async ValueTask NewChatKeepSystemMessageAsync()
+        {
+            // keep system message, new chat and set again
+            var systemMessage = _messages.FirstOrDefault(m => m.Role == "system");
+            await NewChatAsync();
+            if (systemMessage != null)
+            {
+                _messages.Add(systemMessage);
+                _chatStatus.IsSystemMessageSet = true;
+            }
+        }
 
     }
 }

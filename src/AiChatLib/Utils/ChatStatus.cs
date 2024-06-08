@@ -13,5 +13,7 @@ namespace FxPu.AiChatLib.Utils
         public int QuestionNumber { get; set; }
         public TimeSpan LastLlmDuration { get; set; }
         public TokenUsage LastTokenUsage { get; set; }
+        public bool IsSystemMessageSet { get; set; }
+        public string? ConfigurationName { get; set; }
     }
 }
