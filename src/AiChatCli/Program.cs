@@ -58,7 +58,7 @@ namespace FxPu.AiChatCli
                 try
                 {
                     logger.LogTrace("Start");
-                    await commandProcessor.RunAsync();
+                        await commandProcessor.RunAsync();
                     logger.LogDebug("End");
                 }
                 catch (Exception e)

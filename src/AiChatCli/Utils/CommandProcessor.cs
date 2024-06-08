@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using FxPu.AiChatLib.Services;
 using Microsoft.Extensions.Logging;
@@ -117,7 +118,16 @@ namespace FxPu.AiChatCli.Utils
             // invoke method and do exception handling
             try
             {
+                try
+                {
                 return await (ValueTask<CommandResult>) commandMethod.Invoke(_commands, [args, input]);
+                }
+                catch (TargetInvocationException ex) when (ex.InnerException != null)
+                {
+                    // Rethrow the inner exception to preserve the original stack trace
+                    ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+                    throw; // normally will be thrown one line above
+                }
             }
             catch (QuitAppException)
             {

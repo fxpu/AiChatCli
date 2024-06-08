@@ -163,7 +163,7 @@ namespace FxPu.AiChatCli.Utils
         [Command("q", "Quit the App.")]
         public ValueTask<CommandResult> QuitAppAsync(string[] args, string? input)
         {
-            throw new QuitAppException();
+                throw new QuitAppException();
         }
     }
 }
