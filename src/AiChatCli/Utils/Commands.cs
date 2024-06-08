@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.IO.Pipes;
+using System.Reflection;
 using System.Text;
 using FxPu.AiChatLib.Services;
 using Microsoft.Extensions.Logging;
@@ -51,6 +53,39 @@ namespace FxPu.AiChatCli.Utils
             return new CommandResult(output);
         }
 
+
+        [Command("sv", "Submits the question amd uses OutTb.exe as Viewer.")]
+        public async ValueTask<CommandResult> SubmitAndOpenViewerAsync(string[] args, string? input)
+        {
+            // write ... to console
+            Console.WriteLine("...");
+
+            // ask the llm but do this in background
+            var outputTask = _chatSvc.SubitAsync(input);
+
+            // start a pipe and OutTb.exe
+            await using var pipeStream = new AnonymousPipeServerStream(PipeDirection.Out, HandleInheritability.Inheritable);
+            var pipeHandle = pipeStream.GetClientHandleAsString();
+            Process.Start(new ProcessStartInfo("OutTb.exe")
+            {
+                UseShellExecute = false,
+                Arguments = $"-p {pipeHandle}"
+            });
+            pipeStream.DisposeLocalCopyOfClientHandle();
+
+            // wait for llm and write answer to pipe
+            var output = await outputTask;
+            await using var writer = new StreamWriter(pipeStream, Encoding.UTF8);
+            await writer.WriteAsync(output);
+            await writer.FlushAsync();
+
+            // wait for pipe consumption
+#pragma warning disable CA1416 // Validate platform compatibility
+            pipeStream.WaitForPipeDrain();
+#pragma warning restore CA1416 // Validate platform compatibility
+
+            return new CommandResult(output);
+        }
 
         [Command("nc", "New chat.")]
         public async ValueTask<CommandResult> NewChatAsync(string[] args, string? input)
