@@ -2,7 +2,7 @@
 using FxPu.AiChatCli.Utils;
 using FxPu.AiChatLib.Services;
 using FxPu.AiChatLib.Utils;
-using FxPu.UtilsLib;
+using FxPu.UtilityLib;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -25,7 +25,7 @@ namespace FxPu.AiChatCli
                 var settingsFile = Path.Combine(aiChatCliUserDirectory, "AiChat.json");
                 if (!File.Exists(settingsFile))
                 {
-                    await File.WriteAllTextAsync(settingsFile, JsonUtils.ToJson(ChatOptions.SAMPLE_OPTIONS));
+                    await File.WriteAllTextAsync(settingsFile, JsonUtility.ToJson(ChatOptions.SAMPLE_OPTIONS));
                     Console.WriteLine($"Created sample settings file {settingsFile}, please enter api keys and restart.");
                     Environment.ExitCode = 1;
                     return;

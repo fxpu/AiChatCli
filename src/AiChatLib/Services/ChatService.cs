@@ -189,6 +189,11 @@ _titleLlmClient = _titleConfiguration.AzureOpenAiEndpoint == null
             _chatStatus.IsSystemMessageSet = true;
             }
 
+        public async ValueTask OpenSystemMessageAsync(string fileName)
+        {
+
+        }
+
         public async ValueTask NewChatKeepSystemMessageAsync()
         {
             // keep system message, new chat and set again
