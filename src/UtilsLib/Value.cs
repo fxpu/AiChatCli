@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 
-namespace FxPu.UtilityLib
+namespace FxPu.Utils
 {
-    public static class ValueUtility
+    public static class Value
     {
         public static bool IsNull(object? value)
             => value == null;
@@ -11,7 +11,7 @@ namespace FxPu.UtilityLib
             => !IsNull(value);
 
         public static bool IsTrue(bool? value)
-            => (value ?? false);
+            => value ?? false;
 
         public static bool IsFalse(bool? value)
             => !IsTrue(value);
@@ -81,5 +81,9 @@ namespace FxPu.UtilityLib
         public static bool IsNotEmpty(IQueryable<object> value)
             => !IsEmpty(value);
 
+        public static void Test()
+        {
+            var s = "Hallo";
+        }
     }
 }

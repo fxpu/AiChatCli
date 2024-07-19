@@ -1,5 +1,5 @@
-﻿using System.Text.Json;namespace FxPu.UtilityLib{
-    public static class JsonUtility    {        public static readonly JsonSerializerOptions FromJsonSerializerOptions = new JsonSerializerOptions        {            AllowTrailingCommas = true,            PropertyNameCaseInsensitive = true,            ReadCommentHandling = JsonCommentHandling.Skip        };        public static readonly JsonSerializerOptions ToJsonSerializerOptions = new JsonSerializerOptions        {            WriteIndented = true        };
+﻿using System.Text.Json;namespace FxPu.Utils{
+    public static class JsonHelper    {        public static readonly JsonSerializerOptions FromJsonSerializerOptions = new JsonSerializerOptions        {            AllowTrailingCommas = true,            PropertyNameCaseInsensitive = true,            ReadCommentHandling = JsonCommentHandling.Skip        };        public static readonly JsonSerializerOptions ToJsonSerializerOptions = new JsonSerializerOptions        {            WriteIndented = true        };
 
         public static TValue? FromJson<TValue>(string? json)
         {            if (string.IsNullOrEmpty(json))            {                return default;            }            return JsonSerializer.Deserialize<TValue>(json, FromJsonSerializerOptions);        }

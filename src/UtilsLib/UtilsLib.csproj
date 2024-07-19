@@ -6,8 +6,8 @@
     <Nullable>enable</Nullable>
 	  <NoWarn></NoWarn>
 	  <WarningsAsErrors>CS4014</WarningsAsErrors>
-	  <RootNamespace>FxPu.UtilityLib</RootNamespace>
-    <AssemblyName>FxPuUtilityLib</AssemblyName>
+	  <RootNamespace>FxPu.Utils</RootNamespace>
+    <AssemblyName>FxPuUtilsLib</AssemblyName>
   </PropertyGroup>
 
 </Project>
