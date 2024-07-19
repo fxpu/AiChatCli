@@ -1,13 +1,13 @@
 ﻿using System.Diagnostics;
-using FxPu.AiChatCli.Utils;
-using FxPu.AiChatLib.Services;
-using FxPu.AiChatLib.Utils;
+using FxPu.AiChat.Cli.Utils;
+using FxPu.AiChat.Services;
+using FxPu.AiChat.Utils;
 using FxPu.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace FxPu.AiChatCli
+namespace FxPu.AiChat.Cli
 {
     public class Program
     {
@@ -58,7 +58,7 @@ namespace FxPu.AiChatCli
                 try
                 {
                     logger.LogTrace("Start");
-                        await commandProcessor.RunAsync();
+                    await commandProcessor.RunAsync();
                     logger.LogDebug("End");
                 }
                 catch (Exception e)

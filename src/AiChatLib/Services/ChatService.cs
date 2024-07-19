@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics;
 using Azure;
 using Azure.AI.OpenAI;
-using FxPu.AiChatLib.Utils;
+using FxPu.AiChat.Utils;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace FxPu.AiChatLib.Services
+namespace FxPu.AiChat.Services
 {
     public class ChatService : IChatService
     {
@@ -139,10 +139,10 @@ namespace FxPu.AiChatLib.Services
                 return;
             }
 
-_titleLlmClient = _titleConfiguration.AzureOpenAiEndpoint == null
-                ? new OpenAIClient(_titleConfiguration.ApiKey)
-                : new OpenAIClient(new Uri(_titleConfiguration.AzureOpenAiEndpoint), new AzureKeyCredential(_titleConfiguration.ApiKey));
-            }
+            _titleLlmClient = _titleConfiguration.AzureOpenAiEndpoint == null
+                            ? new OpenAIClient(_titleConfiguration.ApiKey)
+                            : new OpenAIClient(new Uri(_titleConfiguration.AzureOpenAiEndpoint), new AzureKeyCredential(_titleConfiguration.ApiKey));
+        }
 
         private void SetConfigurationAndClient(ChatConfiguration configuration)
         {
@@ -177,7 +177,7 @@ _titleLlmClient = _titleConfiguration.AzureOpenAiEndpoint == null
         public ChatStatus GetStatus() => _chatStatus;
 
         public async ValueTask SetSystemMessageAsync(string systemMessage)
-            {
+        {
             if (string.IsNullOrEmpty(systemMessage))
             {
                 throw new ChatException("No system message set.");
@@ -187,7 +187,7 @@ _titleLlmClient = _titleConfiguration.AzureOpenAiEndpoint == null
             await NewChatAsync();
             _messages.Add(new ChatMessage { Role = "system", Content = systemMessage });
             _chatStatus.IsSystemMessageSet = true;
-            }
+        }
 
         public async ValueTask OpenSystemMessageAsync(string fileName)
         {
@@ -224,7 +224,7 @@ _titleLlmClient = _titleConfiguration.AzureOpenAiEndpoint == null
 
             // add first 100 chars as question for title
             var titleQuestion = question.Length > 100 ? question.Substring(0, 100) : question;
-            var content = $"Summarize the following question in max. 3 words.Use the language of the question for the answer:\n{ titleQuestion}";
+            var content = $"Summarize the following question in max. 3 words.Use the language of the question for the answer:\n{titleQuestion}";
             titeLlmOptions.Messages.Add(new ChatRequestUserMessage(content));
 
             // ask the llm

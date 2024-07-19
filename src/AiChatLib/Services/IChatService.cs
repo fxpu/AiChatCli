@@ -1,6 +1,6 @@
-﻿using FxPu.AiChatLib.Utils;
+﻿using FxPu.AiChat.Utils;
 
-namespace FxPu.AiChatLib.Services
+namespace FxPu.AiChat.Services
 {
     public interface IChatService
     {

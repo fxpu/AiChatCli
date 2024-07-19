@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
 	  <NoWarn></NoWarn>
 	  <WarningsAsErrors>CS4014</WarningsAsErrors>
-	  <RootNamespace>FxPu.AiChatCli</RootNamespace>
+	  <RootNamespace>FxPu.AiChat.Cli</RootNamespace>
       <AssemblyName>AiChatCli</AssemblyName>
   </PropertyGroup>
 

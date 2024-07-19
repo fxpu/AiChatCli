@@ -1,4 +1,4 @@
-﻿namespace FxPu.AiChatCli.Utils
+﻿namespace FxPu.AiChat.Cli.Utils
 {
     internal interface ICommandProcessor
     {

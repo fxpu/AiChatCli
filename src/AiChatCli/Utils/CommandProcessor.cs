@@ -1,10 +1,10 @@
 ﻿using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text;
-using FxPu.AiChatLib.Services;
+using FxPu.AiChat.Services;
 using Microsoft.Extensions.Logging;
 
-namespace FxPu.AiChatCli.Utils
+namespace FxPu.AiChat.Cli.Utils
 {
     internal class CommandProcessor : ICommandProcessor
     {
@@ -45,12 +45,12 @@ namespace FxPu.AiChatCli.Utils
                     commandResult = await InvokeCommandAsync(line, inputSb.ToString());
                 }
                 catch (QuitAppException)
-                    {
+                {
                     _logger.LogDebug("Quit app");
                     return;
                 }
 
-                
+
                 // clear and set input?
                 inputSb.Clear();
                 if (commandResult.NewInput != null)
@@ -123,7 +123,7 @@ namespace FxPu.AiChatCli.Utils
             {
                 try
                 {
-                return await (ValueTask<CommandResult>) commandMethod.Invoke(_commands, [args, input]);
+                    return await (ValueTask<CommandResult>) commandMethod.Invoke(_commands, [args, input]);
                 }
                 catch (TargetInvocationException ex) when (ex.InnerException != null)
                 {

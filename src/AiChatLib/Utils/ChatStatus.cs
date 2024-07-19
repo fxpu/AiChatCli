@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FxPu.AiChatLib.Utils
+namespace FxPu.AiChat.Utils
 {
     public class ChatStatus
     {

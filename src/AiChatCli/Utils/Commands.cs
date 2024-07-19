@@ -2,10 +2,10 @@
 using System.IO.Pipes;
 using System.Reflection;
 using System.Text;
-using FxPu.AiChatLib.Services;
+using FxPu.AiChat.Services;
 using Microsoft.Extensions.Logging;
 
-namespace FxPu.AiChatCli.Utils
+namespace FxPu.AiChat.Cli.Utils
 {
     internal class Commands
     {
@@ -124,15 +124,15 @@ namespace FxPu.AiChatCli.Utils
             return new CommandResult(sb.ToString(), input);
         }
 
-            [Command("ss", "Set system message.")]
-            public async ValueTask<CommandResult> SetSystemMessageAsync(string[] args, string? input)
-            {
-                await _chatSvc.SetSystemMessageAsync(input);
+        [Command("ss", "Set system message.")]
+        public async ValueTask<CommandResult> SetSystemMessageAsync(string[] args, string? input)
+        {
+            await _chatSvc.SetSystemMessageAsync(input);
 
-                return new CommandResult("System message set.");
-            }
+            return new CommandResult("System message set.");
+        }
 
-            [Command("lcf", "List configurations.")]
+        [Command("lcf", "List configurations.")]
         public async ValueTask<CommandResult> ListConfigurationsAsync(string[] args, string? input)
         {
             var configurations = await _chatSvc.ListConfigurationsAsync();
@@ -166,7 +166,7 @@ namespace FxPu.AiChatCli.Utils
         [Command("q", "Quit the App.")]
         public ValueTask<CommandResult> QuitAppAsync(string[] args, string? input)
         {
-                throw new QuitAppException();
+            throw new QuitAppException();
         }
     }
 }

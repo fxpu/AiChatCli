@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
 	  <NoWarn></NoWarn>
 	  <WarningsAsErrors>CS4014</WarningsAsErrors>
-	  <RootNamespace>FxPu.AiChatLib</RootNamespace>
+	  <RootNamespace>FxPu.AiChat</RootNamespace>
     <AssemblyName>FxPuAiChatLib</AssemblyName>
   </PropertyGroup>
 

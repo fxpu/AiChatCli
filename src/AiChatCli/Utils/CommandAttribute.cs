@@ -1,4 +1,4 @@
-﻿namespace FxPu.AiChatCli.Utils
+﻿namespace FxPu.AiChat.Cli.Utils
 {
     [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
     internal class CommandAttribute : Attribute
