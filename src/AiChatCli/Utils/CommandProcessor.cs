@@ -108,16 +108,6 @@ namespace FxPu.AiChat.Cli.Utils
                 return new CommandResult(true, "Invalid command \":{args[0]}\".", input);
             }
 
-            // check argument count
-            if (argsCsv != null)
-            {
-                int argsCount = argsCsv.Split(',').Length;
-                if (argsCount + 1 != args.Length)
-                {
-                    return new CommandResult(true, "Invalid number of arguments for command \":{args[0]}{argsCsv}\".", input);
-                }
-            }
-
             // invoke method and do exception handling
             try
             {

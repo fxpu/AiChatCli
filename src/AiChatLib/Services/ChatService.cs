@@ -2,6 +2,7 @@
 using Azure;
 using Azure.AI.OpenAI;
 using FxPu.AiChat.Utils;
+using FxPu.Utils;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -191,7 +192,16 @@ namespace FxPu.AiChat.Services
 
         public async ValueTask OpenSystemMessageAsync(string fileName)
         {
+            ThrowIf.IsEmpty<ChatException>(fileName, $"File name is empty.");
 
+            var foundFileName = SearchFile(fileName);
+            ThrowIf.IsNull<ChatException>(foundFileName, $"File {fileName} not found.");
+
+            // read system  message from file
+            var systemMessage = await File.ReadAllTextAsync(foundFileName);
+            ThrowIf.IsEmpty<ChatException>(systemMessage, $"File {fileName} contains no system message.");
+
+            await SetSystemMessageAsync(systemMessage);
         }
 
         public async ValueTask NewChatKeepSystemMessageAsync()
@@ -236,6 +246,42 @@ namespace FxPu.AiChat.Services
             _logger.LogTrace("title llm took {ms}.", sw.ElapsedMilliseconds);
 
             return titleLlmChoice.Message.Content;
+        }
+
+        private string? SearchFile(string fileName)
+        {
+            if (Value.IsEmpty(fileName))
+            {
+                return null;
+            }
+
+            // direct hit?
+            if (File.Exists(fileName))
+            {
+                return fileName;
+            }
+
+            // ~/.AiChat/SystemMessages
+            var foundFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".AiChat", "SystemMessages", fileName);
+            if (File.Exists(foundFileName))
+            {
+                return foundFileName;
+            }
+
+            // ~/.AiChat
+            foundFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".AiChat", fileName);
+            if (File.Exists(foundFileName))
+            {
+                return foundFileName;
+            }
+
+            // when fileName ends with .txt then return null => not found
+            if (fileName.EndsWith(".txt", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return null;
+            }
+
+            return SearchFile($"{fileName}.txt");
         }
 
     }

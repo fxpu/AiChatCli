@@ -124,10 +124,19 @@ namespace FxPu.AiChat.Cli.Utils
             return new CommandResult(sb.ToString(), input);
         }
 
-        [Command("ss", "Set system message.")]
+        [Command("ss", "[<file>]", "Set system message.")]
         public async ValueTask<CommandResult> SetSystemMessageAsync(string[] args, string? input)
         {
-            await _chatSvc.SetSystemMessageAsync(input);
+            if (args.Length == 2)
+            {
+                // open with file name in arg1
+                await _chatSvc.OpenSystemMessageAsync(args[1]);
+            }
+            else
+            {
+                // set input as system message
+                await _chatSvc.SetSystemMessageAsync(input);
+            }
 
             return new CommandResult("System message set.");
         }
