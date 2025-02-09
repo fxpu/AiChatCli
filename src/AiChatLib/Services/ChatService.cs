@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Azure;
 using Azure.AI.OpenAI;
+using Azure.Core;
 using FxPu.AiChat.Utils;
 using FxPu.Utils;
 using Microsoft.Extensions.Logging;
@@ -157,8 +158,16 @@ namespace FxPu.AiChat.Services
             _configuration = configuration;
             if (_configuration.AzureOpenAiEndpoint == null)
             {
-                _logger.LogTrace("Use www.openai.com endpoint.");
-                _llmClient = new OpenAIClient(_configuration.ApiKey);
+                if (_configuration.ApiEndpoint == null)
+                {
+                    _logger.LogTrace("Use www.openai.com endpoint.");
+                    _llmClient = new OpenAIClient(_configuration.ApiKey);
+                }
+                else
+                {
+                    _logger.LogTrace("Use {endpoint}.", _configuration.ApiEndpoint);
+                    _llmClient = new OpenAIClient(new Uri(_configuration.ApiEndpoint), CreateDelegatedToken(_configuration.ApiKey));
+                }
             }
             else
             {
@@ -282,6 +291,12 @@ namespace FxPu.AiChat.Services
             }
 
             return SearchFile($"{fileName}.txt");
+        }
+
+        private static TokenCredential CreateDelegatedToken(string token)
+        {
+            var accessToken = new AccessToken(token, DateTimeOffset.Now.AddDays(180));
+            return DelegatedTokenCredential.Create((_, _) => accessToken);
         }
 
     }

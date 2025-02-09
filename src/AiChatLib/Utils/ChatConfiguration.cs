@@ -4,6 +4,7 @@
     {
         public string Name { get; set; }
         public string? AzureOpenAiEndpoint { get; set; }
+        public string? ApiEndpoint { get; set; }
         public string ApiKey { get; set; }
         public string ModelName { get; set; }
     }
