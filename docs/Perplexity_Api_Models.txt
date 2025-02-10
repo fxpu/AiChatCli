@@ -1,0 +1,8 @@
+Supported Models
+Model	Context Length	Model Type
+sonar-reasoning-pro	127k	Chat Completion
+sonar-reasoning	127k	Chat Completion
+sonar-pro	200k	Chat Completion
+sonar	127k	Chat Completion
+sonar-reasoning-pro and sonar-pro have a max output token limit of 8k
+The reasoning models output CoTs in their responses as well

@@ -1,11 +1,11 @@
-﻿using System.Diagnostics;
-using Azure;
-using Azure.AI.OpenAI;
-using Azure.Core;
+﻿using System.ClientModel;
+using System.Diagnostics;
 using FxPu.AiChat.Utils;
 using FxPu.Utils;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OpenAI;
+using OpenAI.RealtimeConversation;
 
 namespace FxPu.AiChat.Services
 {
@@ -61,45 +61,27 @@ namespace FxPu.AiChat.Services
             }
 
             // llm options
-            var llmOptions = new ChatCompletionsOptions
-            {
-                DeploymentName = _configuration.ModelName,
-                ChoiceCount = 1,
-                Temperature = null,
-                FrequencyPenalty = null,
-                PresencePenalty = null
-            };
+            var llmChatClient = _llmClient.GetChatClient(_configuration.ModelName);
 
             // recent messages
-            foreach (var message in _messages)
-            {
-                ChatRequestMessage llmMessage = message.Role switch
-                {
-                    "system" => new ChatRequestSystemMessage(message.Content),
-                    "user" => new ChatRequestUserMessage(message.Content),
-                    "assistant" => new ChatRequestAssistantMessage(message.Content),
-                    _ => throw new NotImplementedException($"Role {message.Role} not implemented.")
-                };
-                llmOptions.Messages.Add(llmMessage);
-            }
+            var llmMessages = _messages.Select(m => ConvertMessage(m)).ToList();
 
             // add question
-            llmOptions.Messages.Add(new ChatRequestUserMessage(question));
+            llmMessages.Add(new OpenAI.Chat.UserChatMessage(question));
 
             // ask the llm
             var sw = Stopwatch.StartNew();
-            var llmResponse = (await _llmClient.GetChatCompletionsAsync(llmOptions)).Value;
-            var llmChoice = llmResponse.Choices[0];
+                var llmResult = await llmChatClient.CompleteChatAsync(llmMessages);
             sw.Stop();
 
             // last tokens and time
-            _chatStatus.LastTokenUsage = new TokenUsage(llmResponse.Usage.PromptTokens, llmResponse.Usage.CompletionTokens, llmResponse.Usage.TotalTokens);
+            //_chatStatus.LastTokenUsage = new TokenUsage(llmResponse.Usage.PromptTokens, llmResponse.Usage.CompletionTokens, llmResponse.Usage.TotalTokens);
             _chatStatus.LastLlmDuration = sw.Elapsed;
 
             // add question and answer to messages
-            _messages.Add(new ChatMessage { Role = "user", Content = question });
-            var answer = llmChoice.Message.Content;
-            _messages.Add(new ChatMessage { Role = "assistant", Content = answer });
+            var answer = llmResult.Value.Content.FirstOrDefault()?.Text;
+            _messages.Add(new ChatMessage { Role = "Assistant", Content = answer });
+
 
             // update question number
             _chatStatus.QuestionNumber = _messages.Count(m => m.Role == "assistant") + 1;
@@ -134,18 +116,8 @@ namespace FxPu.AiChat.Services
                 return;
             }
 
-            // get configuration, exit when null
-            _titleConfiguration = _chatOptions.Configurations.SingleOrDefault(c => c.Name == configurationName);
-            if (_titleConfiguration == null)
-            {
-                return;
-            }
-
-            _titleLlmClient = _titleConfiguration.AzureOpenAiEndpoint == null
-                            ? new OpenAIClient(_titleConfiguration.ApiKey)
-                            : new OpenAIClient(new Uri(_titleConfiguration.AzureOpenAiEndpoint), new AzureKeyCredential(_titleConfiguration.ApiKey));
-        }
-
+            // TODO: implement configuration
+                    }
         private void SetConfigurationAndClient(ChatConfiguration configuration)
         {
             // nothing to do?
@@ -166,13 +138,13 @@ namespace FxPu.AiChat.Services
                 else
                 {
                     _logger.LogTrace("Use {endpoint}.", _configuration.ApiEndpoint);
-                    _llmClient = new OpenAIClient(new Uri(_configuration.ApiEndpoint), CreateDelegatedToken(_configuration.ApiKey));
+                                                            _llmClient = new OpenAIClient(new ApiKeyCredential(_configuration.ApiKey), new OpenAIClientOptions { Endpoint = new Uri(_configuration.ApiEndpoint) });
                 }
             }
             else
             {
                 _logger.LogTrace("Use AzureOpenAiEndpoint {endpoint}.", _configuration.AzureOpenAiEndpoint);
-                _llmClient = new OpenAIClient(new Uri(_configuration.AzureOpenAiEndpoint), new AzureKeyCredential(_configuration.ApiKey));
+                throw new NotImplementedException("Azure not supported.");
             }
 
             // status
@@ -227,34 +199,10 @@ namespace FxPu.AiChat.Services
 
         private async ValueTask<string?> CreateTitleAsync(string question)
         {
-            if (_titleConfiguration == null)
-            {
-                return null;
-            }
-
-            var titeLlmOptions = new ChatCompletionsOptions
-            {
-                DeploymentName = _titleConfiguration.ModelName,
-                ChoiceCount = 1,
-                Temperature = 0.1f,
-                FrequencyPenalty = null,
-                PresencePenalty = null
-            };
-
-            // add first 100 chars as question for title
-            var titleQuestion = question.Length > 100 ? question.Substring(0, 100) : question;
-            var content = $"Summarize the following question in max. 3 words.Use the language of the question for the answer:\n{titleQuestion}";
-            titeLlmOptions.Messages.Add(new ChatRequestUserMessage(content));
-
-            // ask the llm
-            var sw = Stopwatch.StartNew();
-            var titleLlmResponse = (await _titleLlmClient.GetChatCompletionsAsync(titeLlmOptions)).Value;
-            var titleLlmChoice = titleLlmResponse.Choices[0];
-            sw.Stop();
-
-            _logger.LogTrace("title llm took {ms}.", sw.ElapsedMilliseconds);
-
-            return titleLlmChoice.Message.Content;
+            return null;
+            //add first 100 chars as question for title
+            //var titleQuestion = question.Length > 100 ? question.Substring(0, 100) : question;
+            //var content = $"Summarize the following question in max. 3 words.Use the language of the question for the answer:\n{titleQuestion}";
         }
 
         private string? SearchFile(string fileName)
@@ -293,10 +241,22 @@ namespace FxPu.AiChat.Services
             return SearchFile($"{fileName}.txt");
         }
 
-        private static TokenCredential CreateDelegatedToken(string token)
+        
+
+private OpenAI.Chat.ChatMessage ConvertMessage(ChatMessage message)
+{
+    return message.Role switch
+    {
+        "system" => new OpenAI.Chat.SystemChatMessage(message.Content),
+        "user" => new OpenAI.Chat.UserChatMessage(message.Content),
+        "assistant" => new OpenAI.Chat.AssistantChatMessage(message.Content),
+        _ => throw new NotImplementedException($"Role {message.Role} not implemented.")
+    };
+}
+
+        private void test()
         {
-            var accessToken = new AccessToken(token, DateTimeOffset.Now.AddDays(180));
-            return DelegatedTokenCredential.Create((_, _) => accessToken);
+            
         }
 
     }
