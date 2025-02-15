@@ -1,0 +1,1 @@
+﻿namespace FxPu.Utils{    public record ValidationError(string? Source, string Message);}

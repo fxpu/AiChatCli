@@ -80,7 +80,7 @@ namespace FxPu.AiChat.Services
 
             // add question and answer to messages
             var answer = llmResult.Value.Content.FirstOrDefault()?.Text;
-            _messages.Add(new ChatMessage { Role = "Assistant", Content = answer });
+            _messages.Add(new ChatMessage { Role = "assistant", Content = answer });
 
 
             // update question number
@@ -173,14 +173,14 @@ namespace FxPu.AiChat.Services
 
         public async ValueTask OpenSystemMessageAsync(string fileName)
         {
-            ThrowIf.IsEmpty<ChatException>(fileName, $"File name is empty.");
+            Validate.IsNotEmpty(fileName, "File name is empty.").Throw<ChatException>();
 
             var foundFileName = SearchFile(fileName);
-            ThrowIf.IsNull<ChatException>(foundFileName, $"File {fileName} not found.");
+            Validate.IsNotNull(foundFileName, $"File {fileName} not found.").Throw<ChatException>();
 
             // read system  message from file
             var systemMessage = await File.ReadAllTextAsync(foundFileName);
-            ThrowIf.IsEmpty<ChatException>(systemMessage, $"File {fileName} contains no system message.");
+            Validate.IsNotEmpty(systemMessage, $"File {fileName} contains no system message.").Throw<ChatException>();
 
             await SetSystemMessageAsync(systemMessage);
         }
@@ -207,7 +207,7 @@ namespace FxPu.AiChat.Services
 
         private string? SearchFile(string fileName)
         {
-            if (Value.IsEmpty(fileName))
+            if (ValueHelper.IsEmpty(fileName))
             {
                 return null;
             }

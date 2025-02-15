@@ -1,0 +1,13 @@
+﻿using System.Text.Json.Serialization;
+
+namespace FxPu.Perplexity.Client
+{
+    public class Message
+    {
+        [JsonPropertyName("role")]
+        public string Role { get; set; }
+
+        [JsonPropertyName("content")]
+        public string Content { get; set; }
+    }
+}
