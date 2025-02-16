@@ -5,7 +5,6 @@ using FxPu.Utils;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenAI;
-using OpenAI.RealtimeConversation;
 
 namespace FxPu.AiChat.Services
 {
@@ -71,7 +70,7 @@ namespace FxPu.AiChat.Services
 
             // ask the llm
             var sw = Stopwatch.StartNew();
-                var llmResult = await llmChatClient.CompleteChatAsync(llmMessages);
+            var llmResult = await llmChatClient.CompleteChatAsync(llmMessages);
             sw.Stop();
 
             // last tokens and time
@@ -117,7 +116,7 @@ namespace FxPu.AiChat.Services
             }
 
             // TODO: implement configuration
-                    }
+        }
         private void SetConfigurationAndClient(ChatConfiguration configuration)
         {
             // nothing to do?
@@ -138,7 +137,7 @@ namespace FxPu.AiChat.Services
                 else
                 {
                     _logger.LogTrace("Use {endpoint}.", _configuration.ApiEndpoint);
-                                                            _llmClient = new OpenAIClient(new ApiKeyCredential(_configuration.ApiKey), new OpenAIClientOptions { Endpoint = new Uri(_configuration.ApiEndpoint) });
+                    _llmClient = new OpenAIClient(new ApiKeyCredential(_configuration.ApiKey), new OpenAIClientOptions { Endpoint = new Uri(_configuration.ApiEndpoint) });
                 }
             }
             else
@@ -241,22 +240,22 @@ namespace FxPu.AiChat.Services
             return SearchFile($"{fileName}.txt");
         }
 
-        
 
-private OpenAI.Chat.ChatMessage ConvertMessage(ChatMessage message)
-{
-    return message.Role switch
-    {
-        "system" => new OpenAI.Chat.SystemChatMessage(message.Content),
-        "user" => new OpenAI.Chat.UserChatMessage(message.Content),
-        "assistant" => new OpenAI.Chat.AssistantChatMessage(message.Content),
-        _ => throw new NotImplementedException($"Role {message.Role} not implemented.")
-    };
-}
+
+        private OpenAI.Chat.ChatMessage ConvertMessage(ChatMessage message)
+        {
+            return message.Role switch
+            {
+                "system" => new OpenAI.Chat.SystemChatMessage(message.Content),
+                "user" => new OpenAI.Chat.UserChatMessage(message.Content),
+                "assistant" => new OpenAI.Chat.AssistantChatMessage(message.Content),
+                _ => throw new NotImplementedException($"Role {message.Role} not implemented.")
+            };
+        }
 
         private void test()
         {
-            
+
         }
 
     }
