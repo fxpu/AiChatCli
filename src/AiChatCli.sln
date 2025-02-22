@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LlmClientPpLib", "LlmClient
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilsLib", "UtilsLib\UtilsLib.csproj", "{0828F6C1-7E53-FD44-1936-873C83C1BC41}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LlmClientOpenAiLib", "LlmClientOpenAiLib\LlmClientOpenAiLib.csproj", "{9DB33A34-ADC4-4051-9A2F-2FBE6400D1D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{0828F6C1-7E53-FD44-1936-873C83C1BC41}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0828F6C1-7E53-FD44-1936-873C83C1BC41}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0828F6C1-7E53-FD44-1936-873C83C1BC41}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DB33A34-ADC4-4051-9A2F-2FBE6400D1D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DB33A34-ADC4-4051-9A2F-2FBE6400D1D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DB33A34-ADC4-4051-9A2F-2FBE6400D1D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DB33A34-ADC4-4051-9A2F-2FBE6400D1D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,6 +75,7 @@ Global
 		{0E598AED-E261-B633-C9EC-D7EE90BC16EA} = {4ED696A1-A4A8-456F-AA0B-362CE590E125}
 		{0D577F14-C90F-5A12-6724-9ABE7FD3A1E8} = {760F4229-FDAB-4601-9370-9AE0263AD97B}
 		{0828F6C1-7E53-FD44-1936-873C83C1BC41} = {760F4229-FDAB-4601-9370-9AE0263AD97B}
+		{9DB33A34-ADC4-4051-9A2F-2FBE6400D1D7} = {760F4229-FDAB-4601-9370-9AE0263AD97B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C31CCA70-A163-4F65-B474-0A442003872E}
