@@ -15,7 +15,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\LlmClientLib\LlmClientLib.csproj" />
+		<ProjectReference Include="..\LlmClientAbstractionsLib\LlmClientAbstractionsLib.csproj" />
 		<ProjectReference Include="..\UtilsLib\UtilsLib.csproj" />
 	</ItemGroup>
 
