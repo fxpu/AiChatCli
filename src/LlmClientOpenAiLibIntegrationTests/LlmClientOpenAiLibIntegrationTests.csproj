@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+		<NoWarn>RCS1036</NoWarn>
+		<WarningsAsErrors>CS4014</WarningsAsErrors>
+		<RootNamespace>FxPu.LlmClient.OpenAi.IntegrationTests</RootNamespace>
+		<AssemblyName>FxPuLlmClientOpenAiLibIntegrationTests</AssemblyName>
+		<UserSecretsId>1fa9073f-bcdc-4946-abeb-bd8c6962520a</UserSecretsId>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.*" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.*" />
+		<PackageReference Include="MartinCostello.Logging.XUnit" Version="0.5.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="8.0.*" />
+		<PackageReference Include="xunit" Version="2.9.3" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="coverlet.collector" Version="6.0.4">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\LlmClientOpenAiLib\LlmClientOpenAiLib.csproj" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<None Update="appsettings.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+
+</Project>
