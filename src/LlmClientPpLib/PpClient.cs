@@ -2,38 +2,42 @@
 using System.Net.Http.Json;
 using FxPu.Utils;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace FxPu.LlmClient.Pp
 {
     public class PpClient : ILlmClient
     {
-        private ILogger<PpClient> _logger;
+        private readonly ILogger<PpClient> _logger;
+        private readonly LlmClientOptions _options;
+
         private readonly HttpClient _httpClient;
         private const string BaseUrl = "https://api.perplexity.ai";
 
-        public PpClient(ILogger<PpClient> logger, string apiKey)
+        public PpClient(ILogger<PpClient> logger, IOptions<LlmClientOptions> optionsFactory)
         {
             _logger = logger;
+            _options = optionsFactory.Value;
+
             _httpClient = new HttpClient
             {
                 BaseAddress = new Uri(BaseUrl)
             };
-            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_options.ApiKey}");
         }
 
         public async ValueTask<LlmChatCompletionResponse> GetChatCompletionAsync(LlmChatCompletionRequest llmChatCompletionRequest, CancellationToken cancellationToken = default)
         {
             Validate.IsNotNull(llmChatCompletionRequest)?.Throw<ArgumentNullException>();
-            Validate.IsNotEmpty(llmChatCompletionRequest.ModelName)?.Throw<ArgumentException>();
             Validate.IsNotEmpty(llmChatCompletionRequest.Messages)?.Throw<ArgumentException>();
 
             // convert messages
-            var messages = llmChatCompletionRequest.Messages.Select(m => PpChatMessage.FromLlmChatMessage(m)).ToList();
+            var messages = llmChatCompletionRequest.Messages.Select(m => FromLlmChatMessage(m)).ToList();
 
             // create request
             var request = new PpChatCompletionRequest
             {
-                Model = llmChatCompletionRequest.ModelName,
+                Model = _options.ModelName,
                 Messages = messages,
                 ReturnCitations = true,
                 ReturnRelatedQuestions = false
@@ -55,12 +59,69 @@ namespace FxPu.LlmClient.Pp
 
             return new LlmChatCompletionResponse
             {
-                Message = PpChatMessage.ToLlmChatMessage(response.Choices.First().Message, response.Citations),
+                Message = ToLlmChatMessage(response.Choices.First().Message, response.Citations),
                 CompletionTokens = response.Usage.CompletionTokens,
                 PromptTokens = response.Usage.PromptTokens,
                 TotalTokens = response.Usage.TotalTokens,
                 ElapsedMilliseconds = sw.ElapsedMilliseconds
             };
         }
+
+        private LlmChatMessage ToLlmChatMessage(PpChatMessage ppChatMessage, IEnumerable<string>? citations)
+        {
+            var role = ppChatMessage.Role switch
+            {
+                "system" => LlmChatRole.System,
+                "user" => LlmChatRole.User,
+                "assistant" => LlmChatRole.Assistant,
+                _ => throw new ArgumentOutOfRangeException(nameof(ppChatMessage.Role))
+            };
+
+            var llmCitations = citations?.Select(c => new LlmCitation
+            {
+                Url = c
+            });
+
+            var llmCahtMessage = new LlmChatMessage
+            {
+                Role = role,
+                Content = ppChatMessage.Content,
+                Citations = llmCitations
+            };
+
+            // when auto inline citations, add citations as md links at the end.
+            if (!_options.NoAutoInlineCitations)
+            {
+                llmCahtMessage.Content += LlmContentHelper.CitationsToMarkDowCitations(llmCitations, "\n\n---\n\n");
+            }
+
+            return llmCahtMessage;
+        }
+
+        private PpChatMessage FromLlmChatMessage(LlmChatMessage llmChatMessage)
+        {
+            var role = llmChatMessage.Role switch
+            {
+                LlmChatRole.System => "system",
+                LlmChatRole.User => "user",
+                LlmChatRole.Assistant => "assistant",
+                _ => throw new ArgumentOutOfRangeException(nameof(llmChatMessage.Role))
+            };
+
+            var ppChatMessage = new PpChatMessage
+            {
+                Role = role,
+                Content = llmChatMessage.Content
+            };
+
+            // when no auto inline citations, add citations as md links at the end for model history
+            if (_options.NoAutoInlineCitations)
+            {
+                ppChatMessage.Content += LlmContentHelper.CitationsToMarkDowCitations(llmChatMessage.Citations, "\n\n---\n\n");
+            }
+
+            return ppChatMessage;
+        }
+
     }
 }

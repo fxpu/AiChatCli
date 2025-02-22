@@ -1,6 +1,7 @@
 using FxPu.LlmClient.Pp.IntegrationTests.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -25,17 +26,19 @@ namespace FxPu.LlmClient.Pp.IntegrationTests
         public async Task TestPpClientAsync()
         {
             // create pp client
-            var apiKey = _app.Configuration["ApiKey"];
-            var modelName = "sonar-pro";
+            var optionsFactory = new OptionsWrapper<LlmClientOptions>(new LlmClientOptions
+            {
+                ModelName = "sonar-pro",
+                ApiKey = _app.Configuration["ApiKey"]
+            });
             var loggerFactory = _app.ServiceProvider.GetRequiredService<ILoggerFactory>();
-            var ppClient = new PpClient(loggerFactory.CreateLogger<PpClient>(), apiKey);
+            var ppClient = new PpClient(loggerFactory.CreateLogger<PpClient>(), optionsFactory);
 
             var messages = new List<LlmChatMessage>();
-            messages.Add(new LlmChatMessage { Role = LlmChatRole.User, Content = "Wieviele Einwohner hat Paris"  });
+            messages.Add(new LlmChatMessage { Role = LlmChatRole.User, Content = "Wieviele Einwohner hat Paris" });
 
             var request = new LlmChatCompletionRequest
             {
-                ModelName = modelName,
                 Messages = messages
             };
             var response = await ppClient.GetChatCompletionAsync(request);
@@ -46,7 +49,6 @@ namespace FxPu.LlmClient.Pp.IntegrationTests
 
             request = new LlmChatCompletionRequest
             {
-                ModelName = modelName,
                 Messages = messages
             };
             response = await ppClient.GetChatCompletionAsync(request);
