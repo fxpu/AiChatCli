@@ -1,9 +1,8 @@
 ﻿using System.Text.Json.Serialization;
-using FxPu.Perplexity.Client;
 
-namespace Fxpu.Perplexity.Api.Client
+namespace FxPu.LlmClient.Pp
 {
-    public class PerplexityResponse
+    class PpChatCompletionResponse
     {
         [JsonPropertyName("id")]
         public string Id { get; set; }
@@ -15,10 +14,10 @@ namespace Fxpu.Perplexity.Api.Client
         public long Created { get; set; }
 
         [JsonPropertyName("choices")]
-        public List<Choice> Choices { get; set; }
+        public List<PpChoice> Choices { get; set; }
 
         [JsonPropertyName("usage")]
-        public PerplexityUsage Usage { get; set; }
+        public PpUsage Usage { get; set; }
 
         [JsonPropertyName("citations")]
         public List<string> Citations { get; set; }

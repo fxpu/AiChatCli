@@ -1,14 +1,14 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace FxPu.Perplexity.Client
+namespace FxPu.LlmClient.Pp
 {
-    public class Request
+    class PpChatCompletionRequest
     {
         [JsonPropertyName("model")]
         public string Model { get; set; } = "sonar-pro";
 
         [JsonPropertyName("messages")]
-        public List<Message> Messages { get; set; } = new();
+        public List<PpChatMessage> Messages { get; set; } = new();
 
         [JsonPropertyName("max_tokens")]
         public int? MaxTokens { get; set; }
