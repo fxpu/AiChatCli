@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	  <NoWarn></NoWarn>
+	  <WarningsAsErrors>CS4014</WarningsAsErrors>
+	  <RootNamespace>FxPu.LlmClient</RootNamespace>
+	  <AssemblyName>FxPuLlmClientLib</AssemblyName>
+  </PropertyGroup>
+
+</Project>

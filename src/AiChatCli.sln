@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilsCoreLib", "UtilsCoreLi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerplexityClientLibIntegrationTests", "PerplexityClientLibIntegrationTests\PerplexityClientLibIntegrationTests.csproj", "{55130F2C-A8B2-F379-D83E-8488DC11A3B8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LlmClientLib", "LlmClientLib\LlmClientLib.csproj", "{FBA65409-69B0-43D5-8E6B-E7A78E47FB67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{55130F2C-A8B2-F379-D83E-8488DC11A3B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55130F2C-A8B2-F379-D83E-8488DC11A3B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55130F2C-A8B2-F379-D83E-8488DC11A3B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBA65409-69B0-43D5-8E6B-E7A78E47FB67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBA65409-69B0-43D5-8E6B-E7A78E47FB67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBA65409-69B0-43D5-8E6B-E7A78E47FB67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBA65409-69B0-43D5-8E6B-E7A78E47FB67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,6 +61,7 @@ Global
 		{D04FDD96-D738-7286-165F-04BC62530848} = {760F4229-FDAB-4601-9370-9AE0263AD97B}
 		{9603C40E-2B7E-4E6F-9EE5-7D95C4BED217} = {760F4229-FDAB-4601-9370-9AE0263AD97B}
 		{55130F2C-A8B2-F379-D83E-8488DC11A3B8} = {4ED696A1-A4A8-456F-AA0B-362CE590E125}
+		{FBA65409-69B0-43D5-8E6B-E7A78E47FB67} = {760F4229-FDAB-4601-9370-9AE0263AD97B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C31CCA70-A163-4F65-B474-0A442003872E}
