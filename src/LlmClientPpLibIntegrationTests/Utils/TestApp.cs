@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace FxPu.Perplexity.Client.IntegrationTests.Utils
+namespace FxPu.LlmClient.Pp.IntegrationTests.Utils
 {
     public class TestApp : IAsyncDisposable, ITestOutputHelperAccessor
     {
