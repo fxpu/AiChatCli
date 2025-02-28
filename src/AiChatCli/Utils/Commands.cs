@@ -177,5 +177,6 @@ namespace FxPu.AiChat.Cli.Utils
         {
             throw new QuitAppException();
         }
+
     }
 }
