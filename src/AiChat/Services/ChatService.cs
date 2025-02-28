@@ -3,7 +3,7 @@ using System.Diagnostics;
 using FxPu.AiChat.Utils;
 using FxPu.LlmClient;
 using FxPu.LlmClient.OpenAi;
-using FxPu.LlmClient.Pp;
+using FxPu.LlmClient.Perplexity;
 using FxPu.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -243,13 +243,13 @@ namespace FxPu.AiChat.Services
             if (configuration.Provider == LlmProvider.Perplexity)
             {
                 _logger.LogTrace("Create Perplexity client.");
-                var logger = _loggerFactory.CreateLogger<PpClient>();
+                var logger = _loggerFactory.CreateLogger<PerplexityClient>();
                 var optionsFactory = new OptionsWrapper<LlmClientOptions>(new LlmClientOptions
                 {
                     ApiKey = configuration.ApiKey,
                     ModelName = configuration.ModelName
                 });
-                return new PpClient(logger, optionsFactory);
+                return new PerplexityClient(logger, optionsFactory);
             }
 
             throw new ArgumentException($"Provider {configuration.Provider} not supported.");

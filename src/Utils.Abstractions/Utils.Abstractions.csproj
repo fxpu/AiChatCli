@@ -7,7 +7,7 @@
 	  <NoWarn></NoWarn>
 	  <WarningsAsErrors>CS4014</WarningsAsErrors>
 	  <RootNamespace>FxPu.Utils</RootNamespace>
-    <AssemblyName>FxPuUtilsCoreLib</AssemblyName>
+    <AssemblyName>FxPu.Utils.Abstractions</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

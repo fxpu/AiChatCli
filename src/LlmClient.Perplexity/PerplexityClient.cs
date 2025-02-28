@@ -4,17 +4,17 @@ using FxPu.Utils;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace FxPu.LlmClient.Pp
+namespace FxPu.LlmClient.Perplexity
 {
-    public class PpClient : ILlmClient
+    public class PerplexityClient : ILlmClient
     {
-        private readonly ILogger<PpClient> _logger;
+        private readonly ILogger<PerplexityClient> _logger;
         private readonly LlmClientOptions _options;
 
         private readonly HttpClient _httpClient;
         private const string BaseUrl = "https://api.perplexity.ai";
 
-        public PpClient(ILogger<PpClient> logger, IOptions<LlmClientOptions> optionsFactory)
+        public PerplexityClient(ILogger<PerplexityClient> logger, IOptions<LlmClientOptions> optionsFactory)
         {
             _logger = logger;
             _options = optionsFactory.Value;
@@ -35,7 +35,7 @@ namespace FxPu.LlmClient.Pp
             var messages = llmChatCompletionRequest.Messages.Select(m => FromLlmChatMessage(m)).ToList();
 
             // create request
-            var request = new PpChatCompletionRequest
+            var request = new PerplexityChatCompletionRequest
             {
                 Model = _options.ModelName,
                 Messages = messages,
@@ -53,7 +53,7 @@ namespace FxPu.LlmClient.Pp
                 _logger.LogTrace("Error occured, throw LlmClientException");
                 throw new LlmClientException($"Error get chat completion: {error}");
             }
-            var response = await httpResponseMessage.Content.ReadFromJsonAsync<PpChatCompletionResponse>(cancellationToken);
+            var response = await httpResponseMessage.Content.ReadFromJsonAsync<PerplexityChatCompletionResponse>(cancellationToken);
             sw.Stop();
             _logger.LogTrace("Request took {ms}.", sw.ElapsedMilliseconds);
 
@@ -67,7 +67,7 @@ namespace FxPu.LlmClient.Pp
             };
         }
 
-        private LlmChatMessage ToLlmChatMessage(PpChatMessage ppChatMessage, IEnumerable<string>? citations)
+        private LlmChatMessage ToLlmChatMessage(PerplexityChatMessage ppChatMessage, IEnumerable<string>? citations)
         {
             var role = ppChatMessage.Role switch
             {
@@ -98,7 +98,7 @@ namespace FxPu.LlmClient.Pp
             return llmCahtMessage;
         }
 
-        private PpChatMessage FromLlmChatMessage(LlmChatMessage llmChatMessage)
+        private PerplexityChatMessage FromLlmChatMessage(LlmChatMessage llmChatMessage)
         {
             var role = llmChatMessage.Role switch
             {
@@ -108,7 +108,7 @@ namespace FxPu.LlmClient.Pp
                 _ => throw new ArgumentOutOfRangeException(nameof(llmChatMessage.Role))
             };
 
-            var ppChatMessage = new PpChatMessage
+            var ppChatMessage = new PerplexityChatMessage
             {
                 Role = role,
                 Content = llmChatMessage.Content

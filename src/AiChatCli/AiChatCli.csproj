@@ -23,7 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\AiChatLib\AiChatLib.csproj" />
+	  <ProjectReference Include="..\AiChat\AiChat.csproj" />
 	</ItemGroup>
 
 </Project>

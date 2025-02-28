@@ -7,7 +7,7 @@
 		<NoWarn></NoWarn>
 		<WarningsAsErrors>CS4014</WarningsAsErrors>
 		<RootNamespace>FxPu.LlmClient.OpenAi</RootNamespace>
-		<AssemblyName>FxPuLlmClientOpenAiLib</AssemblyName>
+		<AssemblyName>FxPu.LlmClient.OpenAi</AssemblyName>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -15,8 +15,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\LlmClientAbstractionsLib\LlmClientAbstractionsLib.csproj" />
-		<ProjectReference Include="..\UtilsLib\UtilsLib.csproj" />
+	  <ProjectReference Include="..\LlmClient.Abstractions\LlmClient.Abstractions.csproj" />
+	  <ProjectReference Include="..\Utils\Utils.csproj" />
 	</ItemGroup>
 
 </Project>

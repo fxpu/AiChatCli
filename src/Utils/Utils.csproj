@@ -7,7 +7,7 @@
 	  <NoWarn></NoWarn>
 	  <WarningsAsErrors>CS4014</WarningsAsErrors>
 	  <RootNamespace>FxPu.Utils</RootNamespace>
-	  <AssemblyName>FxPuUtilsLib</AssemblyName>
+	  <AssemblyName>FxPu.Utils</AssemblyName>
   </PropertyGroup>
 
 	<ItemGroup>
@@ -16,7 +16,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\UtilsCoreLib\UtilsCoreLib.csproj" />
+	  <ProjectReference Include="..\Utils.Abstractions\Utils.Abstractions.csproj" />
 	</ItemGroup>
 
 </Project>

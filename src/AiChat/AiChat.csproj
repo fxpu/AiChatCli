@@ -7,13 +7,13 @@
 	  <NoWarn></NoWarn>
 	  <WarningsAsErrors>CS4014</WarningsAsErrors>
 	  <RootNamespace>FxPu.AiChat</RootNamespace>
-    <AssemblyName>FxPuAiChatLib</AssemblyName>
+    <AssemblyName>FxPu.AiChat</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LlmClientOpenAiLib\LlmClientOpenAiLib.csproj" />
-    <ProjectReference Include="..\LlmClientPpLib\LlmClientPpLib.csproj" />
-    <ProjectReference Include="..\UtilsLib\UtilsLib.csproj" />
+    <ProjectReference Include="..\LlmClient.OpenAi\LlmClient.OpenAi.csproj" />
+    <ProjectReference Include="..\LlmClient.Perplexity\LlmClient.Perplexity.csproj" />
+    <ProjectReference Include="..\Utils\Utils.csproj" />
   </ItemGroup>
 
 </Project>

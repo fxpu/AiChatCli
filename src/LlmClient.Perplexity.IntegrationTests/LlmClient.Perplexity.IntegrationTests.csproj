@@ -7,9 +7,9 @@
 		<IsPackable>false</IsPackable>
 		<NoWarn>RCS1036</NoWarn>
 		<WarningsAsErrors>CS4014</WarningsAsErrors>
-		<RootNamespace>FxPu.LlmClient.OpenAi.IntegrationTests</RootNamespace>
-		<AssemblyName>FxPuLlmClientOpenAiLibIntegrationTests</AssemblyName>
-		<UserSecretsId>1fa9073f-bcdc-4946-abeb-bd8c6962520a</UserSecretsId>
+		<RootNamespace>FxPu.LlmClient.Perplexity.IntegrationTests</RootNamespace>
+		<AssemblyName>FxPu.LlmClient.Perplexity.IntegrationTests</AssemblyName>
+		<UserSecretsId>e9d194a6-de6f-45c5-97d0-5c1812b18367</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -30,7 +30,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\LlmClientOpenAiLib\LlmClientOpenAiLib.csproj" />
+	  <ProjectReference Include="..\LlmClient.Perplexity\LlmClient.Perplexity.csproj" />
 	</ItemGroup>
 
 

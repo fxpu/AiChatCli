@@ -7,7 +7,7 @@
 	  <NoWarn></NoWarn>
 	  <WarningsAsErrors>CS4014</WarningsAsErrors>
 	  <RootNamespace>FxPu.LlmClient</RootNamespace>
-	  <AssemblyName>FxPuLlmClientAbstractionsLib</AssemblyName>
+	  <AssemblyName>FxPu.LlmClient.Abstractions</AssemblyName>
   </PropertyGroup>
 
 </Project>

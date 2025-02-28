@@ -6,14 +6,13 @@
     <Nullable>enable</Nullable>
 	  <NoWarn></NoWarn>
 	  <WarningsAsErrors>CS4014</WarningsAsErrors>
-	  <RootNamespace>FxPu.LlmClient.Pp</RootNamespace>
-	  <AssemblyName>FxPuLlmClientPpLib</AssemblyName>
+	  <RootNamespace>FxPu.LlmClient.Perplexity</RootNamespace>
+	  <AssemblyName>FxPu.LlmClient.Perplexity</AssemblyName>
   </PropertyGroup>
 
-	
   <ItemGroup>
-    <ProjectReference Include="..\LlmClientAbstractionsLib\LlmClientAbstractionsLib.csproj" />
-    <ProjectReference Include="..\UtilsLib\UtilsLib.csproj" />
+    <ProjectReference Include="..\LlmClient.Abstractions\LlmClient.Abstractions.csproj" />
+    <ProjectReference Include="..\Utils\Utils.csproj" />
   </ItemGroup>
 
 </Project>

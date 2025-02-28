@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace FxPu.LlmClient.Pp
+namespace FxPu.LlmClient.Perplexity
 {
-    class PpChatMessage
+    class PerplexityChatMessage
     {
         [JsonPropertyName("role")]
         public string Role { get; set; }

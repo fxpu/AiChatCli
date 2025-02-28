@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace FxPu.LlmClient.Pp
+namespace FxPu.LlmClient.Perplexity
 {
-    class PpUsage
+    class PerplexityUsage
     {
         [JsonPropertyName("prompt_tokens")]
         public int PromptTokens { get; set; }

@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace FxPu.LlmClient.Pp
+namespace FxPu.LlmClient.Perplexity
 {
-    class PpChoice
+    class PerplexityChoice
     {
         [JsonPropertyName("index")]
         public int Index { get; set; }
@@ -11,6 +11,6 @@ namespace FxPu.LlmClient.Pp
         public string FinishReason { get; set; }
 
         [JsonPropertyName("message")]
-        public PpChatMessage Message { get; set; }
+        public PerplexityChatMessage Message { get; set; }
     }
 }

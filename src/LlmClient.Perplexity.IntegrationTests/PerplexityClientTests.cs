@@ -1,18 +1,18 @@
-using FxPu.LlmClient.Pp.IntegrationTests.Utils;
+using FxPu.LlmClient.Perplexity.IntegrationTests.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace FxPu.LlmClient.Pp.IntegrationTests
+namespace FxPu.LlmClient.Perplexity.IntegrationTests
 {
     [Collection("Sequential")]
-    public class PpClientTests : IClassFixture<TestApp>, IAsyncLifetime
+    public class PerplexityClientTests : IClassFixture<TestApp>, IAsyncLifetime
     {
         private readonly TestApp _app;
 
-        public PpClientTests(TestApp app, ITestOutputHelper outputHelper)
+        public PerplexityClientTests(TestApp app, ITestOutputHelper outputHelper)
         {
             _app = app;
             _app.OutputHelper = outputHelper;
@@ -32,7 +32,7 @@ namespace FxPu.LlmClient.Pp.IntegrationTests
                 ApiKey = _app.Configuration["ApiKey"]
             });
             var loggerFactory = _app.ServiceProvider.GetRequiredService<ILoggerFactory>();
-            var ppClient = new PpClient(loggerFactory.CreateLogger<PpClient>(), optionsFactory);
+            var ppClient = new PerplexityClient(loggerFactory.CreateLogger<PerplexityClient>(), optionsFactory);
 
             var messages = new List<LlmChatMessage>();
             messages.Add(new LlmChatMessage { Role = LlmChatRole.User, Content = "Wieviele Einwohner hat Paris" });
