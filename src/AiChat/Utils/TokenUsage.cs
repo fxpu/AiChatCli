@@ -1,4 +1,4 @@
 ﻿namespace FxPu.AiChat.Utils
 {
-    public record TokenUsage(int PromptTokens, int CompletionTokens, int TotalTokens);
+    public record TokenUsage(long PromptTokens, long CompletionTokens, long TotalTokens);
 }

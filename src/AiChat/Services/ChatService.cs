@@ -1,36 +1,36 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 using FxPu.AiChat.Utils;
-using FxPu.LlmClient;
-using FxPu.LlmClient.OpenAi;
-using FxPu.LlmClient.Perplexity;
 using FxPu.Utils;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OpenAI;
 
 namespace FxPu.AiChat.Services
 {
     public class ChatService : IChatService
     {
         private readonly ILogger<ChatService> _logger;
-        private readonly ChatOptions _chatOptions;
-        private readonly IList<LlmChatMessage> _messages;
+        private readonly Utils.ChatOptions _chatOptions;
+        private readonly List<ChatMessage> _messages;
         private readonly ILoggerFactory _loggerFactory;
 
         private readonly List<ChatConfiguration> _configurations;
         private ChatConfiguration _configuration = null!;
-        private ILlmClient _llmClient = null!;
+        private IChatClient _extChatClient = null!;
         private ChatConfiguration? _titleConfiguration;
-        private ILlmClient? _titleLlmClient;
+        private IChatClient? _titleExtClient;
         private ChatStatus _chatStatus;
 
 
-        public ChatService(ILogger<ChatService> logger, IOptions<ChatOptions> chatOptionsFactory, ILoggerFactory loggerFactory)
+        public ChatService(ILogger<ChatService> logger, IOptions<Utils.ChatOptions> chatOptionsFactory, ILoggerFactory loggerFactory)
         {
             _logger = logger;
             _chatOptions = chatOptionsFactory.Value;
             _loggerFactory = loggerFactory;
 
-            _messages = new List<LlmChatMessage>();
+            _messages = new();
 
             //  build configurations for each model in the raw configurations
             _configurations = new List<ChatConfiguration>();
@@ -59,7 +59,7 @@ namespace FxPu.AiChat.Services
                 _titleConfiguration = _configurations.SingleOrDefault(c => c.Name.Equals(_chatOptions.TitleConfigurationName, StringComparison.InvariantCultureIgnoreCase));
                 if (_titleConfiguration != null)
                 {
-                    _titleLlmClient = CreateLlmClient(_titleConfiguration);
+                    _titleExtClient = CreateExtChatClient(_titleConfiguration);
                 }
             }
 
@@ -92,22 +92,23 @@ namespace FxPu.AiChat.Services
             }
 
             // add question
-            _messages.Add(new LlmChatMessage { Role = LlmChatRole.User, Content = question });
+            _messages.Add(new ChatMessage(ChatRole.User, question));
 
             // ask the llm
-            var request = new LlmChatCompletionRequest { Messages = _messages };
-            var response = await _llmClient.GetChatCompletionAsync(request);
+            var sw = Stopwatch.StartNew();
+            var chatResponse = await _extChatClient.GetResponseAsync(_messages);
+            sw.Stop();
 
             // last tokens and time
-            _chatStatus.LastTokenUsage = new TokenUsage(response.PromptTokens ?? 0, response.CompletionTokens ?? 0, response.TotalTokens ?? 0);
-            _chatStatus.LastLlmDuration = TimeSpan.FromMilliseconds(response.ElapsedMilliseconds ?? 0);
+            _chatStatus.LastTokenUsage = new TokenUsage(chatResponse.Usage?.InputTokenCount ?? 0, chatResponse.Usage?.OutputTokenCount ?? 0, chatResponse.Usage?.TotalTokenCount ?? 0);
+            _chatStatus.LastLlmDuration = sw.Elapsed;
 
             // add question and answer to messages
-            var message = response.Message;
+            var message = new ChatMessage(ChatRole.Assistant, chatResponse.Text);
             _messages.Add(message);
 
             // update question number
-            _chatStatus.QuestionNumber = _messages.Count(m => m.Role == LlmChatRole.Assistant) + 1;
+            _chatStatus.QuestionNumber = _messages.Count(m => m.Role == ChatRole.Assistant) + 1;
 
             // wait for title task when not null
             if (titleTask != null)
@@ -115,7 +116,7 @@ namespace FxPu.AiChat.Services
                 _chatStatus.Title = await (ValueTask<string?>) titleTask;
             }
 
-            return message.Content;
+            return message.Text;
         }
 
         public ValueTask SetConfigurationAsync(string name)
@@ -128,7 +129,7 @@ namespace FxPu.AiChat.Services
 
             SetConfigurationAndClient(configuration);
 
-            return new ValueTask();
+            return ValueTask.CompletedTask;
         }
 
 
@@ -142,7 +143,7 @@ namespace FxPu.AiChat.Services
 
             // set configuration and llm client
             _configuration = configuration;
-            _llmClient = CreateLlmClient(configuration);
+            _extChatClient = CreateExtChatClient(configuration);
 
             // status
             _chatStatus.ConfigurationName = _configuration.Name;
@@ -164,7 +165,7 @@ namespace FxPu.AiChat.Services
 
             // create new chat and set system message
             await NewChatAsync();
-            _messages.Add(new LlmChatMessage { Role = LlmChatRole.System, Content = systemMessage });
+            _messages.Add(new ChatMessage(ChatRole.System, systemMessage));
             _chatStatus.IsSystemMessageSet = true;
         }
 
@@ -185,11 +186,11 @@ namespace FxPu.AiChat.Services
         public async ValueTask NewChatKeepSystemMessageAsync()
         {
             // keep system message, new chat and set again
-            var systemMessage = _messages.FirstOrDefault(m => m.Role == LlmChatRole.System);
+            var msExtAiSystemMessage = _messages.FirstOrDefault(m => m.Role == ChatRole.System);
             await NewChatAsync();
-            if (systemMessage != null)
+            if (msExtAiSystemMessage != null)
             {
-                _messages.Add(systemMessage);
+                _messages.Add(msExtAiSystemMessage);
                 _chatStatus.IsSystemMessageSet = true;
             }
         }
@@ -199,15 +200,9 @@ namespace FxPu.AiChat.Services
             //add first 100 chars as question for title
             var titleQuestion = question.Length > 100 ? question.Substring(0, 100) : question;
             var content = $"Summarize the following question in max. 6 words.Use the language of the question for the answer:\n{titleQuestion}";
+            var msExtAiResponse = await _titleExtClient.GetResponseAsync([new ChatMessage(ChatRole.User, content)]);
 
-            var request = new LlmChatCompletionRequest
-            {
-                Messages = [new LlmChatMessage { Role = LlmChatRole.User, Content = content }]
-            };
-
-            var response = await _titleLlmClient.GetChatCompletionAsync(request);
-
-            return response.Message.Content;
+            return msExtAiResponse.Text;
         }
 
         private string? SearchFile(string fileName)
@@ -248,32 +243,14 @@ namespace FxPu.AiChat.Services
 
 
 
-        private ILlmClient CreateLlmClient(ChatConfiguration configuration)
+        private IChatClient CreateExtChatClient(ChatConfiguration configuration)
         {
             // open Ai
             if (configuration.Provider == LlmProvider.OpenAi)
             {
                 _logger.LogTrace("Create OpenAi client.");
-                var logger = _loggerFactory.CreateLogger<OpenAiClient>();
-                var optionsFactory = new OptionsWrapper<LlmClientOptions>(new LlmClientOptions
-                {
-                    ApiKey = configuration.ApiKey,
-                    ModelName = configuration.ModelName
-                });
-                return new OpenAiClient(logger, optionsFactory);
-            }
 
-            // Perplexity
-            if (configuration.Provider == LlmProvider.Perplexity)
-            {
-                _logger.LogTrace("Create Perplexity client.");
-                var logger = _loggerFactory.CreateLogger<PerplexityClient>();
-                var optionsFactory = new OptionsWrapper<LlmClientOptions>(new LlmClientOptions
-                {
-                    ApiKey = configuration.ApiKey,
-                    ModelName = configuration.ModelName
-                });
-                return new PerplexityClient(logger, optionsFactory);
+                return new OpenAIClient(configuration.ApiKey).GetChatClient(configuration.ModelName).AsIChatClient();
             }
 
             throw new ArgumentException($"Provider {configuration.Provider} not supported.");
