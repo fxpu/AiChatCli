@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Azure.AI.OpenAI;
 using FxPu.AiChat.Utils;
+using FxPu.Extensions.Ai.Perplexity;
 using FxPu.Utils;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
@@ -254,6 +255,10 @@ namespace FxPu.AiChat.Services
                 case LlmProvider.AzureOpenAi:
                     _logger.LogTrace("Create AzureOpenAi client.");
                     return new AzureOpenAIClient(new Uri(configuration.ApiEndpoint), new ApiKeyCredential(configuration.ApiKey)).GetChatClient(configuration.ModelName).AsIChatClient();
+
+                case LlmProvider.Perplexity:
+                    _logger.LogTrace("Create Perplexity client.");
+                    return new PerplexityChatClient(configuration.ApiKey, configuration.ModelName);
 
                 default:
                     throw new ArgumentException($"Provider {configuration.Provider} not supported.");

@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LlmClient.OpenAi.Integratio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LlmClient.Perplexity.IntegrationTests", "LlmClient.Perplexity.IntegrationTests\LlmClient.Perplexity.IntegrationTests.csproj", "{0A85F056-5EAC-4EE2-A552-7C2108211A80}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FxPu.Extensions.Ai.Perplexity", "FxPu.Extensions.Ai.Perplexity\FxPu.Extensions.Ai.Perplexity.csproj", "{6E6493CE-D49D-4262-ABA9-3ED01F49AE48}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{0A85F056-5EAC-4EE2-A552-7C2108211A80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A85F056-5EAC-4EE2-A552-7C2108211A80}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A85F056-5EAC-4EE2-A552-7C2108211A80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E6493CE-D49D-4262-ABA9-3ED01F49AE48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E6493CE-D49D-4262-ABA9-3ED01F49AE48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E6493CE-D49D-4262-ABA9-3ED01F49AE48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E6493CE-D49D-4262-ABA9-3ED01F49AE48}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -83,6 +89,7 @@ Global
 		{7E5C2B53-1463-577A-3834-2DBB88129C01} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{3B7578DD-DCA8-2424-1B68-075AF6CEBB39} = {BC8AD96D-09D3-4A5E-B5F4-D145798DF24B}
 		{0A85F056-5EAC-4EE2-A552-7C2108211A80} = {BC8AD96D-09D3-4A5E-B5F4-D145798DF24B}
+		{6E6493CE-D49D-4262-ABA9-3ED01F49AE48} = {760F4229-FDAB-4601-9370-9AE0263AD97B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C31CCA70-A163-4F65-B474-0A442003872E}
