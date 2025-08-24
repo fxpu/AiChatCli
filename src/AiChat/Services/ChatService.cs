@@ -13,24 +13,22 @@ namespace FxPu.AiChat.Services
     {
         private readonly ILogger<ChatService> _logger;
         private readonly Utils.ChatOptions _chatOptions;
-        private readonly List<ChatMessage> _messages;
-        private readonly ILoggerFactory _loggerFactory;
+        private readonly List<ChatMessage> _llmMessages;
 
         private readonly List<ChatConfiguration> _configurations;
         private ChatConfiguration _configuration = null!;
-        private IChatClient _extChatClient = null!;
+        private IChatClient _llmChatClient = null!;
         private ChatConfiguration? _titleConfiguration;
-        private IChatClient? _titleExtClient;
+        private IChatClient? _titleLlmClient;
         private ChatStatus _chatStatus;
 
 
-        public ChatService(ILogger<ChatService> logger, IOptions<Utils.ChatOptions> chatOptionsFactory, ILoggerFactory loggerFactory)
+        public ChatService(ILogger<ChatService> logger, IOptions<Utils.ChatOptions> chatOptionsFactory)
         {
             _logger = logger;
             _chatOptions = chatOptionsFactory.Value;
-            _loggerFactory = loggerFactory;
 
-            _messages = new();
+            _llmMessages = new();
 
             //  build configurations for each model in the raw configurations
             _configurations = new List<ChatConfiguration>();
@@ -59,7 +57,7 @@ namespace FxPu.AiChat.Services
                 _titleConfiguration = _configurations.SingleOrDefault(c => c.Name.Equals(_chatOptions.TitleConfigurationName, StringComparison.InvariantCultureIgnoreCase));
                 if (_titleConfiguration != null)
                 {
-                    _titleExtClient = CreateExtChatClient(_titleConfiguration);
+                    _titleLlmClient = CreateLlmChatClient(_titleConfiguration);
                 }
             }
 
@@ -73,14 +71,14 @@ namespace FxPu.AiChat.Services
         public ValueTask NewChatAsync()
         {
             // clear message
-            _messages.Clear();
+            _llmMessages.Clear();
             _chatStatus = new ChatStatus();
             _chatStatus.ConfigurationName = _configuration.Name;
 
             return new ValueTask();
         }
 
-        public async ValueTask<string?> SubitAsync(string question)
+        public async ValueTask<string?> SubmitAsync(string question)
         {
             Validate.IsNotEmpty(question, "No question - no answer :-)")?.Throw<ChatException>();
 
@@ -92,23 +90,23 @@ namespace FxPu.AiChat.Services
             }
 
             // add question
-            _messages.Add(new ChatMessage(ChatRole.User, question));
+            _llmMessages.Add(new ChatMessage(ChatRole.User, question));
 
             // ask the llm
             var sw = Stopwatch.StartNew();
-            var chatResponse = await _extChatClient.GetResponseAsync(_messages);
+            var llmChatResponse = await _llmChatClient.GetResponseAsync(_llmMessages);
             sw.Stop();
 
             // last tokens and time
-            _chatStatus.LastTokenUsage = new TokenUsage(chatResponse.Usage?.InputTokenCount ?? 0, chatResponse.Usage?.OutputTokenCount ?? 0, chatResponse.Usage?.TotalTokenCount ?? 0);
+            _chatStatus.LastTokenUsage = new TokenUsage(llmChatResponse.Usage?.InputTokenCount ?? 0, llmChatResponse.Usage?.OutputTokenCount ?? 0, llmChatResponse.Usage?.TotalTokenCount ?? 0);
             _chatStatus.LastLlmDuration = sw.Elapsed;
 
             // add question and answer to messages
-            var message = new ChatMessage(ChatRole.Assistant, chatResponse.Text);
-            _messages.Add(message);
+            var llmMessage = new ChatMessage(ChatRole.Assistant, llmChatResponse.Text);
+            _llmMessages.Add(llmMessage);
 
             // update question number
-            _chatStatus.QuestionNumber = _messages.Count(m => m.Role == ChatRole.Assistant) + 1;
+            _chatStatus.QuestionNumber = _llmMessages.Count(m => m.Role == ChatRole.Assistant) + 1;
 
             // wait for title task when not null
             if (titleTask != null)
@@ -116,7 +114,7 @@ namespace FxPu.AiChat.Services
                 _chatStatus.Title = await (ValueTask<string?>) titleTask;
             }
 
-            return message.Text;
+            return llmMessage.Text;
         }
 
         public ValueTask SetConfigurationAsync(string name)
@@ -143,7 +141,7 @@ namespace FxPu.AiChat.Services
 
             // set configuration and llm client
             _configuration = configuration;
-            _extChatClient = CreateExtChatClient(configuration);
+            _llmChatClient = CreateLlmChatClient(configuration);
 
             // status
             _chatStatus.ConfigurationName = _configuration.Name;
@@ -165,7 +163,7 @@ namespace FxPu.AiChat.Services
 
             // create new chat and set system message
             await NewChatAsync();
-            _messages.Add(new ChatMessage(ChatRole.System, systemMessage));
+            _llmMessages.Add(new ChatMessage(ChatRole.System, systemMessage));
             _chatStatus.IsSystemMessageSet = true;
         }
 
@@ -186,11 +184,11 @@ namespace FxPu.AiChat.Services
         public async ValueTask NewChatKeepSystemMessageAsync()
         {
             // keep system message, new chat and set again
-            var msExtAiSystemMessage = _messages.FirstOrDefault(m => m.Role == ChatRole.System);
+            var llmSystemMessage = _llmMessages.FirstOrDefault(m => m.Role == ChatRole.System);
             await NewChatAsync();
-            if (msExtAiSystemMessage != null)
+            if (llmSystemMessage != null)
             {
-                _messages.Add(msExtAiSystemMessage);
+                _llmMessages.Add(llmSystemMessage);
                 _chatStatus.IsSystemMessageSet = true;
             }
         }
@@ -200,9 +198,9 @@ namespace FxPu.AiChat.Services
             //add first 100 chars as question for title
             var titleQuestion = question.Length > 100 ? question.Substring(0, 100) : question;
             var content = $"Summarize the following question in max. 6 words.Use the language of the question for the answer:\n{titleQuestion}";
-            var msExtAiResponse = await _titleExtClient.GetResponseAsync([new ChatMessage(ChatRole.User, content)]);
+            var llmChatResponse = await _titleLlmClient.GetResponseAsync([new ChatMessage(ChatRole.User, content)]);
 
-            return msExtAiResponse.Text;
+            return llmChatResponse.Text;
         }
 
         private string? SearchFile(string fileName)
@@ -243,22 +241,22 @@ namespace FxPu.AiChat.Services
 
 
 
-        private IChatClient CreateExtChatClient(ChatConfiguration configuration)
+        private IChatClient CreateLlmChatClient(ChatConfiguration configuration)
         {
-            // open Ai
-            if (configuration.Provider == LlmProvider.OpenAi)
+            switch (configuration.Provider)
             {
-                _logger.LogTrace("Create OpenAi client.");
+                case LlmProvider.OpenAi:
+                                    _logger.LogTrace("Create OpenAi client.");
+                    return new OpenAIClient(configuration.ApiKey).GetChatClient(configuration.ModelName).AsIChatClient();
 
-                return new OpenAIClient(configuration.ApiKey).GetChatClient(configuration.ModelName).AsIChatClient();
+                default:
+                    throw new ArgumentException($"Provider {configuration.Provider} not supported.");
             }
-
-            throw new ArgumentException($"Provider {configuration.Provider} not supported.");
         }
 
         private ChatConfiguration? GetConfiguration(string name)
         {
-            // check per regex if name onyl contains numbers
+            // check per regex if name only contains numbers
             if (Regex.IsMatch(name, "^[0-9]+$"))
             {
                 var index = int.Parse(name) - 1;

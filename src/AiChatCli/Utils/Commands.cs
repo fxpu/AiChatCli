@@ -48,7 +48,7 @@ namespace FxPu.AiChat.Cli.Utils
             Console.WriteLine("...");
 
             // ask the llm
-            var output = await _chatSvc.SubitAsync(input);
+            var output = await _chatSvc.SubmitAsync(input);
 
             return new CommandResult(output);
         }
@@ -61,7 +61,7 @@ namespace FxPu.AiChat.Cli.Utils
             Console.WriteLine("...");
 
             // ask the llm
-            var output = await _chatSvc.SubitAsync(input);
+            var output = await _chatSvc.SubmitAsync(input);
 
             // get title from status
             var chatStatus = _chatSvc.GetStatus();

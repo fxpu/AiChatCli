@@ -11,6 +11,6 @@ namespace FxPu.AiChat.Services
         ValueTask OpenSystemMessageAsync(string fileName);
         ValueTask SetConfigurationAsync(string name);
         ValueTask SetSystemMessageAsync(string systemMessage);
-        ValueTask<string?> SubitAsync(string question);
+        ValueTask<string?> SubmitAsync(string question);
     }
 }

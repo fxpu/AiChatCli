@@ -3,6 +3,7 @@
     public enum LlmProvider
     {
         OpenAi,
+        AzureOpenAi,
         Perplexity
     }
 }
