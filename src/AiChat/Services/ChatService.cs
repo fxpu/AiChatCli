@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System.ClientModel;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Azure.AI.OpenAI;
 using FxPu.AiChat.Utils;
 using FxPu.Utils;
 using Microsoft.Extensions.AI;
@@ -246,8 +248,12 @@ namespace FxPu.AiChat.Services
             switch (configuration.Provider)
             {
                 case LlmProvider.OpenAi:
-                                    _logger.LogTrace("Create OpenAi client.");
+                    _logger.LogTrace("Create OpenAi client.");
                     return new OpenAIClient(configuration.ApiKey).GetChatClient(configuration.ModelName).AsIChatClient();
+
+                case LlmProvider.AzureOpenAi:
+                    _logger.LogTrace("Create AzureOpenAi client.");
+                    return new AzureOpenAIClient(new Uri(configuration.ApiEndpoint), new ApiKeyCredential(configuration.ApiKey)).GetChatClient(configuration.ModelName).AsIChatClient();
 
                 default:
                     throw new ArgumentException($"Provider {configuration.Provider} not supported.");
